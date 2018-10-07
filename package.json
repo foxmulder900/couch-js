@@ -1,0 +1,30 @@
+{
+  "name": "couch-js",
+  "version": "0.0.1",
+  "description": "A CouchDB JavaScript client.",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint ./src ./test",
+    "start": "node index.js",
+    "test": "jasmine --config=jasmine.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/foxmulder900/couch-js.git"
+  },
+  "author": "Matt Ossman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/foxmulder900/couch-js/issues"
+  },
+  "homepage": "https://github.com/foxmulder900/couch-js#readme",
+  "devDependencies": {
+    "eslint": "^5.6.1",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jasmine": "^2.10.1",
+    "jasmine": "^3.2.0",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.2"
+  }
+}

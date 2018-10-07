@@ -1,0 +1,8 @@
+version: "3"
+services:
+  db:
+    image: couchdb:latest
+  test:
+    build: .
+    depends_on:
+      - db

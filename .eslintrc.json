@@ -1,0 +1,12 @@
+{
+    "env": {
+        "jasmine": true
+    },
+    "extends": "airbnb-base",
+    "plugins": ["jasmine"],
+    "rules": {
+        "indent": ["error", "tab"],
+        "no-tabs": "off",
+        "prefer-const": "off"
+    }
+}
