@@ -3,11 +3,7 @@ sudo: required
 language: node_js
 
 services:
-  - docker
-
-before_script:
-  - docker-compose run -d db
-  - ./wait-for-it.sh localhost:5984 --timeout=60
+  - couchdb
 
 script:
-  - docker-compose run --no-deps test
+  - npm run test
