@@ -5,5 +5,9 @@ language: node_js
 services:
   - docker
 
+before_script:
+  - docker-compose run -d db
+  - ./wait-for-it.sh localhost:5984 --timeout=60
+
 script:
-  - docker-compose run test
+  - docker-compose run --no-deps test
