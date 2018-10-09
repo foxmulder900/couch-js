@@ -7,8 +7,8 @@ class Client {
 		this.baseUrl = `${protocol}://${host}:${port}`;
 	}
 
-	database(dbName){
-		return new DatabaseAPI(this.baseUrl, dbName);
+	database(dtoClass){
+		return new DatabaseAPI(this.baseUrl, dtoClass);
 	}
 
 	listDatabases() {
