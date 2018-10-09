@@ -38,7 +38,9 @@ describe('Client', () => {
 				client.database('db_3').create()
 			]).then(() => client.listDatabases())
 			.then(response => {
-				expect(response).toEqual(['db_1', 'db_2', 'db_3']);
+				expect(response.includes('db_1')).toBeTruthy();
+				expect(response.includes('db_2')).toBeTruthy();
+				expect(response.includes('db_3')).toBeTruthy();
 				done();
 			});
 		});
