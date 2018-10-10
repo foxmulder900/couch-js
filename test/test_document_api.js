@@ -1,19 +1,21 @@
-const DocumentAPI = require('../src/document_api');
 const Client = require('../src/client');
 const BaseDTO = require('../src/base_dto');
 
 class TestDTO extends BaseDTO{
-	_defineFields(){
+	static databaseName() {
+		return 'test_database';
+	}
+
+	static _fields(){
 		return ['id', 'rev', 'testField'];
 	}
 }
 
 describe('DocumentAPI', () => {
 	let database;
-	let dbName = 'test_database';
 
 	beforeAll(done => {
-		database = new Client().database(dbName);
+		database = new Client().database(TestDTO);
 		database.create().then(done);
 	});
 
@@ -22,7 +24,7 @@ describe('DocumentAPI', () => {
 		let testFieldValue = 'hello';
 
 		it('creates a new document and populates id and rev on dto', done => {
-			let document = new DocumentAPI(`http://localhost:5984/${dbName}`, TestDTO);
+			let document = database.document();
 			let dto = new TestDTO({testField: testFieldValue});
 
 			document.create(dto)
@@ -40,7 +42,7 @@ describe('DocumentAPI', () => {
 			let updatedTestFieldValue = 'world!';
 
 			it('reads the document', done => {
-				document = new DocumentAPI(`http://localhost:5984/${dbName}`, TestDTO, docId);
+				document = database.document(docId);
 
 				document.read()
 				.then(response => {

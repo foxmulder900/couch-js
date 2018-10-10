@@ -1,31 +1,35 @@
-const BaseDTO = require('./base_dto');
-
 class DocumentAPI {
-	constructor(baseUrl, dtoClass, documentId){
+	constructor(baseUrl, dtoClass, documentId, documentRevison){
 		this.dbUrl = baseUrl;
 		this.baseUrl = baseUrl;
 		this.dtoClass = dtoClass;
 		if(documentId !== undefined){
-			let dto = new dtoClass({id: documentId});
+			let dto = new dtoClass({id: documentId, rev: documentRevison});
 			this._setDTO(dto);
 		}
 	}
 
 	create(dto){
-		//TODO accept a json object here as well as a dto
 		//TODO assert that dto.id is undefined, otherwise it would be an indication that the document already exists
+
+		if(dto instanceof this.dtoClass === false){
+			dto = new this.dtoClass(dto);
+		}
 		let jsonObj = dto.toJSON();
+
 		return fetch(this.baseUrl, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify(jsonObj)
-		}).then(response => response.json())
+		})
+		.then(response => response.json())
 		.then(json => {
 			dto.id = json['id'];
 			dto.rev = json['rev'];
 			this._setDTO(dto);
+			return dto.id;
 		});
 	}
 
@@ -47,6 +51,9 @@ class DocumentAPI {
 	// },
 
 	read(){
+		//TODO: I think this should be the only point that the dto should be retrieved from
+		//TODO: the outside. Then we can add version checking to avoid reloading when necessary
+
 		return fetch(this.baseUrl)
 		.then(response => response.json())
 		.then(json => {

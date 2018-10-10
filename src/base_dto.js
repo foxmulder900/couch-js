@@ -1,13 +1,17 @@
 class BaseDTO {
-	 _defineFields(){
-		//TODO We should use class-fields here instead of defining from a list in the constructor. Once class-fields are
-		//TODO officially supported in JS, this should be refactored.
+	static databaseName() {
+		throw Error('BaseDTO is not associated with a database. This method needs overridden!');
+	}
+
+	 static _fields(){
+		//TODO We should use class-fields here instead of defining from a list in the constructor. Once class-fields
+		//TODO are officially supported in JS, this should be refactored.
 		//TODO See proposal here: https://github.com/tc39/proposal-class-fields
 		return ['id', 'rev'];
 	}
 
 	constructor(jsonObj) {
-		this.fields = this._defineFields();
+		this.fields = this.constructor._fields();
 		jsonObj && this.fromJSON(jsonObj);
 	}
 

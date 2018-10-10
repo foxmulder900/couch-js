@@ -2,38 +2,14 @@ const DocumentAPI = require('./document_api');
 
 class DatabaseAPI {
 
-	constructor(baseUrl, dbName){
-		this.baseUrl = `${baseUrl}/${dbName}`;
-		this.dbName = dbName;
+	constructor(baseUrl, dtoClass){
+		this.dtoClass = dtoClass;
+		this.baseUrl = `${baseUrl}/${dtoClass.databaseName()}`;
 	}
 
-	document(dtoClass, docId) {
-		return new DocumentAPI(this.baseUrl, dtoClass, docId);
+	document(documentId, documentRevision) {
+		return new DocumentAPI(this.baseUrl, this.dtoClass, documentId, documentRevision);
 	};
-
-	// addIndex: function(dbName, fields, indexName, indexGroup){
-	// 	return $http.post(COUCH_HOST + dbName + '/_index', {
-	// 		index: {
-	// 			fields: fields
-	// 		},
-	// 		name: indexName,
-	// 		ddoc: indexGroup
-	// 	}).then(returnData);
-	// 	//TODO, do some different handling for each result value 'created' or 'exists'
-	// },
-	//
-	// allDocs: function(dbName){
-	// 	return $http.get(COUCH_HOST + dbName + '/_all_docs')
-	// 	.then(returnData);
-	// },
-	//
-	// countDocs: function(dbName){
-	// 	return $http.get(COUCH_HOST + dbName)
-	// 	.then(returnData)
-	// 	.then(function(data){
-	// 		return data['doc_count'];
-	// 	});
-	// },
 
 	create(){
 		return fetch(this.baseUrl, {method: 'PUT'});
@@ -48,7 +24,52 @@ class DatabaseAPI {
 	}
 
 	info(){
-		return fetch(this.baseUrl).then(response => response.json());
+		return fetch(this.baseUrl)
+		.then(response => response.json());
+	}
+
+	getDocuments(ids){
+		let url = `${this.baseUrl}/_all_docs`;
+
+		let promise;
+		if(ids){
+			promise = fetch(url, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					keys: ids
+				})
+			})
+		}
+		else{
+			promise = fetch(url);
+		}
+
+		return promise.then(response => response.json())
+		.then(json => {
+			return json['rows'].map(row => {
+				return this.document(row['id'], row['value']['rev']);
+			})
+		});
+	}
+
+	// addIndex: function(dbName, fields, indexName, indexGroup){
+	// 	return $http.post(COUCH_HOST + dbName + '/_index', {
+	// 		index: {
+	// 			fields: fields
+	// 		},
+	// 		name: indexName,
+	// 		ddoc: indexGroup
+	// 	}).then(returnData);
+	// 	//TODO, do some different handling for each result value 'created' or 'exists'
+	// },
+
+	countDocuments(){
+		//TODO: consider if this is necessary, or if just having info() is enough
+		return this.info()
+		.then(json => json['doc_count']);
 	}
 }
 
