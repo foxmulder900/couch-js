@@ -1,37 +1,36 @@
-const DocumentAPI = require('./document_api');
+const DocumentAPI = require('./document_api')
 
-class DatabaseAPI {
-
+class DatabaseAPI{
 	constructor(baseUrl, dtoClass){
-		this.dtoClass = dtoClass;
-		this.baseUrl = `${baseUrl}/${dtoClass.databaseName()}`;
+		this.dtoClass = dtoClass
+		this.baseUrl = `${baseUrl}/${dtoClass.databaseName()}`
 	}
 
-	document(documentId, documentRevision) {
-		return new DocumentAPI(this.baseUrl, this.dtoClass, documentId, documentRevision);
+	document(documentId, documentRevision){
+		return new DocumentAPI(this.baseUrl, this.dtoClass, documentId, documentRevision)
 	};
 
 	create(){
-		return fetch(this.baseUrl, {method: 'PUT'});
+		return fetch(this.baseUrl, {method: 'PUT'})
 	}
 
 	delete(){
-		return fetch(this.baseUrl, {method: 'DELETE'});
+		return fetch(this.baseUrl, {method: 'DELETE'})
 	}
 
 	exists(){
-		return fetch(this.baseUrl, {method: 'HEAD'}).then((response) => response.status===200);
+		return fetch(this.baseUrl, {method: 'HEAD'}).then((response) => response.status === 200)
 	}
 
 	info(){
 		return fetch(this.baseUrl)
-		.then(response => response.json());
+			.then(response => response.json())
 	}
 
 	getDocuments(ids){
-		let url = `${this.baseUrl}/_all_docs`;
+		let url = `${this.baseUrl}/_all_docs`
 
-		let promise;
+		let promise
 		if(ids){
 			promise = fetch(url, {
 				method: 'POST',
@@ -42,17 +41,16 @@ class DatabaseAPI {
 					keys: ids
 				})
 			})
-		}
-		else{
-			promise = fetch(url);
+		}else{
+			promise = fetch(url)
 		}
 
 		return promise.then(response => response.json())
-		.then(json => {
-			return json['rows'].map(row => {
-				return this.document(row['id'], row['value']['rev']);
+			.then(json => {
+				return json['rows'].map(row => {
+					return this.document(row['id'], row['value']['rev'])
+				})
 			})
-		});
 	}
 
 	// addIndex: function(dbName, fields, indexName, indexGroup){
@@ -67,10 +65,10 @@ class DatabaseAPI {
 	// },
 
 	countDocuments(){
-		//TODO: consider if this is necessary, or if just having info() is enough
+		// TODO: consider if this is necessary, or if just having info() is enough
 		return this.info()
-		.then(json => json['doc_count']);
+			.then(json => json['doc_count'])
 	}
 }
 
-module.exports = DatabaseAPI;
+module.exports = DatabaseAPI

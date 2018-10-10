@@ -2,11 +2,16 @@
     "env": {
         "jasmine": true
     },
-    "extends": "airbnb-base",
+    "extends": "standard",
     "plugins": ["jasmine"],
     "rules": {
+        "no-return-assign": "off",
+        "keyword-spacing": ["error", {"before": false, "after": false}],
         "indent": ["error", "tab"],
         "no-tabs": "off",
-        "prefer-const": "off"
+        "object-curly-spacing": ["error", "never"],
+        "space-before-blocks": ["error", "never"],
+        "space-before-function-paren": ["error", "never"],
+        "space-infix-ops": "off"
     }
 }

@@ -1,7 +1,7 @@
-class DesignDocumentAPI {
+class DesignDocumentAPI{
 	constructor(baseUrl){
 		this.baseUrl = baseUrl
 	}
 }
 
-module.exports = DesignDocumentAPI;
+module.exports = DesignDocumentAPI
