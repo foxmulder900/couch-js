@@ -30,14 +30,24 @@ class DatabaseAPI {
 
 	getDocuments(ids){
 		let url = `${this.baseUrl}/_all_docs`;
+
+		let promise;
 		if(ids){
-			url = new URL(url);
-			url.search = new URLSearchParams().toString();
-			url = url.toString();
+			promise = fetch(url, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					keys: ids
+				})
+			})
+		}
+		else{
+			promise = fetch(url);
 		}
 
-		return fetch(url)
-		.then(response => response.json())
+		return promise.then(response => response.json())
 		.then(json => {
 			return json['rows'].map(row => {
 				return this.document(row['id'], row['value']['rev']);

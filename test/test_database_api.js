@@ -68,9 +68,20 @@ describe('DatabaseAPI', () => {
 			database.getDocuments()
 			.then(allDocuments => {
 				expect(allDocuments.length).toEqual(3);
-				expect(allDocuments[0].id).toEqual(documentIds[0]);
-				expect(allDocuments[1].id).toEqual(documentIds[1]);
-				expect(allDocuments[2].id).toEqual(documentIds[2]);
+				allDocuments.forEach(document => {
+					expect(documentIds.find( id => id===document.dto.id)).toBeTruthy();
+				});
+				done();
+			});
+		});
+
+		it('should get specific documents', done => {
+			database.getDocuments([documentIds[1], documentIds[2]])
+			.then(allDocuments => {
+				expect(allDocuments.length).toEqual(2);
+				allDocuments.forEach(document => {
+					expect(documentIds.find( id => id===document.dto.id)).toBeTruthy();
+				});
 				done();
 			});
 		});

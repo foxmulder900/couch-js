@@ -29,6 +29,7 @@ class DocumentAPI {
 			dto.id = json['id'];
 			dto.rev = json['rev'];
 			this._setDTO(dto);
+			return dto.id;
 		});
 	}
 
