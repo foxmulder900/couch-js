@@ -2,8 +2,10 @@ language: node_js
 node_js:
   - "10"
 
-services:
-  - couchdb
+before_script:
+- docker pull couchdb:latest
+- docker run -p 5984:5984 -d couchdb
+- while [ $? -ne 0 ]; do sleep 1 && curl -v http://localhost:5984; done
 
 script:
   - npm run test

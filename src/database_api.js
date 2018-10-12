@@ -68,7 +68,6 @@ class DatabaseAPI{
 			body: JSON.stringify({selector: queryObject})
 		}).then(response => response.json())
 			.then(response => {
-				console.log(response);
 				return response['docs'].map(doc => {
 					return this.document(doc['_id'], doc['_rev'])
 				})
