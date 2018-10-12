@@ -7,7 +7,7 @@ class BaseDTO{
 		// TODO We should use class-fields here instead of defining from a list in the constructor. Once class-fields
 		// TODO are officially supported in JS, this should be refactored.
 		// TODO See proposal here: https://github.com/tc39/proposal-class-fields
-		return['id', 'rev']
+		return['_id', '_rev']
 	}
 
 	constructor(jsonObj){

@@ -22,7 +22,7 @@ describe('DatabaseAPI', () => {
 			let document = database.document(docId)
 
 			expect(document).toEqual(jasmine.any(DocumentAPI))
-			expect(document.dto.id).toEqual(docId)
+			expect(document.dto._id).toEqual(docId)
 		})
 
 		it('should return a new DatabaseAPI instance, without a dto when an id is NOT provided', () => {
@@ -66,22 +66,40 @@ describe('DatabaseAPI', () => {
 
 		it('should return all documents', done => {
 			database.getDocuments()
-				.then(allDocuments => {
-					expect(allDocuments.length).toEqual(3)
-					allDocuments.forEach(document => {
-						expect(documentIds.find(id => id === document.dto.id)).toBeTruthy()
-					})
+				.then(documents => {
+					let resultIds = documents.map(document => document.dto._id)
+					expect(resultIds.length).toEqual(3)
+					expect(resultIds.find(id => id === documentIds[0])).toBeTruthy()
+					expect(resultIds.find(id => id === documentIds[1])).toBeTruthy()
+					expect(resultIds.find(id => id === documentIds[2])).toBeTruthy()
 					done()
 				})
 		})
 
 		it('should get specific documents', done => {
 			database.getDocuments([documentIds[1], documentIds[2]])
-				.then(allDocuments => {
-					expect(allDocuments.length).toEqual(2)
-					allDocuments.forEach(document => {
-						expect(documentIds.find(id => id === document.dto.id)).toBeTruthy()
-					})
+				.then(documents => {
+					let resultIds = documents.map(document => document.dto._id)
+					expect(resultIds.length).toEqual(2)
+					expect(resultIds.find(id => id === documentIds[1])).toBeTruthy()
+					expect(resultIds.find(id => id === documentIds[2])).toBeTruthy()
+					done()
+				})
+		})
+
+		it('should get specific documents, using a query object', done => {
+			let queryObject = {
+				_id: {
+					$in: [documentIds[0], documentIds[2]]
+				}
+			}
+
+			database.query(queryObject)
+				.then(documents => {
+					let resultIds = documents.map(document => document.dto._id)
+					expect(resultIds.length).toEqual(2)
+					expect(resultIds.find(id => id === documentIds[0])).toBeTruthy()
+					expect(resultIds.find(id => id === documentIds[2])).toBeTruthy()
 					done()
 				})
 		})

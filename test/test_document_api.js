@@ -7,7 +7,7 @@ class TestDTO extends BaseDTO{
 	}
 
 	static getFields(){
-		return['id', 'rev', 'testField']
+		return['_id', '_rev', 'testField']
 	}
 }
 
@@ -29,11 +29,11 @@ describe('DocumentAPI', () => {
 
 			document.create(dto)
 				.then(() => {
-					expect(document.dto.id).not.toBe(undefined)
-					expect(document.dto.rev).not.toBe(undefined)
-					expect(document.baseUrl.endsWith(document.dto.id)).toBeTruthy()
+					expect(document.dto._id).not.toBe(undefined)
+					expect(document.dto._rev).not.toBe(undefined)
+					expect(document.baseUrl.endsWith(document.dto._id)).toBeTruthy()
 					assertExists(true, document, done)
-					docId = document.dto.id
+					docId = document.dto._id
 				})
 		})
 
@@ -53,13 +53,13 @@ describe('DocumentAPI', () => {
 			})
 
 			it('updates the document', done => {
-				let initialRevision = document.dto.rev
+				let initialRevision = document.dto._rev
 				document.dto.testField = updatedTestFieldValue
 
 				document.update()
 					.then(() => {
-						expect(document.dto.rev).not.toBe(undefined)
-						expect(document.dto.rev).not.toEqual(initialRevision)
+						expect(document.dto._rev).not.toBe(undefined)
+						expect(document.dto._rev).not.toEqual(initialRevision)
 						expect(document.dto.testField).toEqual(updatedTestFieldValue)
 						done()
 					})

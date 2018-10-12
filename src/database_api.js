@@ -53,21 +53,25 @@ class DatabaseAPI{
 			})
 	}
 
-	// addIndex: function(dbName, fields, indexName, indexGroup){
-	// 	return $http.post(COUCH_HOST + dbName + '/_index', {
-	// 		index: {
-	// 			fields: fields
-	// 		},
-	// 		name: indexName,
-	// 		ddoc: indexGroup
-	// 	}).then(returnData);
-	// 	//TODO, do some different handling for each result value 'created' or 'exists'
-	// },
-
 	countDocuments(){
 		// TODO: consider if this is necessary, or if just having info() is enough
 		return this.info()
 			.then(json => json['doc_count'])
+	}
+
+	query(queryObject){
+		return fetch(`${this.baseUrl}/_find`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({selector: queryObject})
+		}).then(response => response.json())
+			.then(response => {
+				return response['docs'].map(doc => {
+					return this.document(doc['_id'], doc['_rev'])
+				})
+			})
 	}
 }
 

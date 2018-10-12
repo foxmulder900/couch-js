@@ -4,7 +4,7 @@ class DocumentAPI{
 		this.baseUrl = baseUrl
 		this.dtoClass = dtoClass
 		if(documentId !== undefined){
-			let dto = new dtoClass({id: documentId, rev: documentRevision})
+			let dto = new dtoClass({_id: documentId, _rev: documentRevision})
 			this._setDTO(dto)
 		}
 	}
@@ -26,16 +26,19 @@ class DocumentAPI{
 		})
 			.then(response => response.json())
 			.then(json => {
-				dto.id = json['id']
-				dto.rev = json['rev']
+				if(!json['ok']){
+					console.log("WARNING: JSON not OK!")
+				}
+				dto._id = json['id']
+				dto._rev = json['rev']
 				this._setDTO(dto)
-				return dto.id
+				return dto._id
 			})
 	}
 
 	delete(){
 		let url = new URL(this.baseUrl)
-		url.search = new URLSearchParams({rev: this.dto.rev}).toString()
+		url.search = new URLSearchParams({rev: this.dto._rev}).toString()
 		return fetch(url.toString(), {method: 'DELETE'})
 	}
 
@@ -62,12 +65,7 @@ class DocumentAPI{
 				return dto
 			})
 	}
-	//
-	// query: function(dbName, queryObj){
-	// 	return $http.post(COUCH_HOST + dbName + '/_find', {selector: queryObj})
-	// 	.then(returnDocs);
-	// },
-	//
+
 	update(){
 		let jsonObj = this.dto.toJSON()
 		return fetch(this.baseUrl, {
@@ -78,12 +76,12 @@ class DocumentAPI{
 			body: JSON.stringify(jsonObj)
 		})
 			.then(response => response.json())
-			.then(json => this.dto.rev = json['rev'])
+			.then(json => this.dto._rev = json['rev'])
 	}
 
 	_setDTO(dto){
 		this.dto = dto
-		this.baseUrl = `${this.dbUrl}/${dto.id}`
+		this.baseUrl = `${this.dbUrl}/${dto._id}`
 	}
 }
 
