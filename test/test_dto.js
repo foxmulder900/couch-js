@@ -3,21 +3,21 @@ const DTO = require('../src/base_dto')
 describe('DTO', () => {
 	describe('lifecycle', () => {
 		let dto
-		let id = 'test-id'
-		let rev = 'test-rev'
+		let _id = 'test-id'
+		let _rev = 'test-rev'
 
 		it('should be built from a JavaScript Object', () => {
-			dto = new DTO({id, rev})
+			dto = new DTO({_id, _rev})
 
-			expect(dto.id).toEqual(id)
-			expect(dto.rev).toEqual(rev)
+			expect(dto._id).toEqual(_id)
+			expect(dto._rev).toEqual(_rev)
 		})
 
 		it('should be able to be converted back to a JavaScript Object', () => {
 			let object = dto.toJSON()
 
-			expect(object['id']).toEqual(id)
-			expect(object['rev']).toEqual(rev)
+			expect(object['_id']).toEqual(_id)
+			expect(object['_rev']).toEqual(_rev)
 		})
 	})
 })
