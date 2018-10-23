@@ -1,6 +1,6 @@
 {
   "name": "@ossman-applications/couch-js",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A CouchDB JavaScript client.",
   "main": "index.js",
   "scripts": {
