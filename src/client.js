@@ -1,5 +1,5 @@
-if (typeof window === 'undefined') {
-	global.fetch = require('node-fetch')
+if (typeof fetch === 'undefined') {
+	fetch = require('node-fetch')
 }
 const DatabaseAPI = require('./database_api')
 
