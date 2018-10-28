@@ -1,4 +1,6 @@
-global.fetch = require('node-fetch') // TODO: Only use this for tests (when running in node)
+if (typeof window === 'undefined') {
+	global.fetch = require('node-fetch')
+}
 const DatabaseAPI = require('./database_api')
 
 class Client{
