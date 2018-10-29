@@ -16,8 +16,31 @@ class BaseDTO{
 	}
 
 	fromJSON(jsonObj){
-		this.fields.forEach(fieldName => {
-			this[fieldName] = jsonObj[fieldName]
+		this.fields.forEach(field => {
+			let fieldName;
+			let fieldType;
+
+			if(typeof field === 'string'){
+				fieldName = field
+				fieldType = String
+			}
+			else{
+				fieldName = field.name
+				fieldType = field.type
+			}
+
+			if(fieldType === Array){
+				let array = []
+				let subType = field.subType
+				jsonObj[fieldName].forEach(subObject => {
+					array.push(new subType(subObject))
+				})
+				this[fieldName] = array
+			}
+			else{
+				let fieldValue = jsonObj[fieldName]
+				this[fieldName] = new fieldType(fieldValue)
+			}
 		})
 	}
 
@@ -27,6 +50,13 @@ class BaseDTO{
 			jsonObj[fieldName] = this[fieldName]
 		})
 		return jsonObj
+	}
+}
+
+class BaseDTOField{
+	constructor(name, type){
+		this.name = name
+		this.type = type || 'string'
 	}
 }
 

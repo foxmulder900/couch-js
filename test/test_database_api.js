@@ -68,6 +68,9 @@ describe('DatabaseAPI', () => {
 			database.getDocuments()
 				.then(documents => {
 					let resultIds = documents.map(document => document.dto._id)
+					console.log(resultIds)
+					console.log(documentIds)
+					console.log(resultIds[0] == documentIds[0])
 					expect(resultIds.length).toEqual(3)
 					expect(resultIds.find(id => id === documentIds[0])).toBeTruthy()
 					expect(resultIds.find(id => id === documentIds[1])).toBeTruthy()

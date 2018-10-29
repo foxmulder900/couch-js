@@ -29,7 +29,7 @@ class DocumentAPI{
 				if(!json['ok']){
 					console.log("WARNING: JSON not OK!")
 				}
-				dto._id = json['id']
+				dto._id = json['id']  //consider using a JavaScript Proxy object to wrap the dto
 				dto._rev = json['rev']
 				this._setDTO(dto)
 				return dto._id
