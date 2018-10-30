@@ -6,15 +6,24 @@ class TestDTO1 extends BaseDTO{
 	static databaseName(){
 		return'test_database_1'
 	}
+	static getFields(){
+		return ['_id', '_rev']
+	}
 }
 class TestDTO2 extends BaseDTO{
 	static databaseName(){
 		return'test_database_2'
 	}
+	static getFields(){
+		return ['_id', '_rev']
+	}
 }
 class TestDTO3 extends BaseDTO{
 	static databaseName(){
 		return'test_database_3'
+	}
+	static getFields(){
+		return ['_id', '_rev']
 	}
 }
 

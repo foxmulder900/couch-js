@@ -27,9 +27,10 @@ class DocumentAPI{
 			.then(response => response.json())
 			.then(json => {
 				if(!json['ok']){
-					console.log("WARNING: JSON not OK!")
+					console.warn("WARNING: JSON not OK!")
+					console.warn(json)
 				}
-				dto._id = json['id']  //consider using a JavaScript Proxy object to wrap the dto
+				dto._id = json['id']
 				dto._rev = json['rev']
 				this._setDTO(dto)
 				return dto._id

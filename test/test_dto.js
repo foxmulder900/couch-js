@@ -1,13 +1,19 @@
-const DTO = require('../src/base_dto')
+const BaseDto = require('../src/base_dto')
 
-describe('DTO', () => {
+class TestDto extends BaseDto {
+	static getFields(){
+		return ['_id', '_rev']
+	}
+}
+
+describe('BaseDto', () => {
 	describe('lifecycle', () => {
 		let dto
 		let _id = 'test-id'
 		let _rev = 'test-rev'
 
 		it('should be built from a JavaScript Object', () => {
-			dto = new DTO({_id, _rev})
+			dto = new TestDto({_id, _rev})
 
 			expect(dto._id).toEqual(_id)
 			expect(dto._rev).toEqual(_rev)

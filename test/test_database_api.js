@@ -6,6 +6,10 @@ class TestDTO extends BaseDTO{
 	static databaseName(){
 		return'test_database'
 	}
+
+	static getFields(){
+		return ['_id', '_rev']
+	}
 }
 
 describe('DatabaseAPI', () => {
