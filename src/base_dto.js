@@ -19,7 +19,7 @@ class BaseDTO{
 				}
 			}
 			else{
-				fieldMap[field] = field
+				fieldMap[field.name] = field
 			}
 		})
 		return fieldMap
@@ -73,14 +73,9 @@ class BaseDTO{
 	fromJSON(jsonObj){
 		Object.keys(this._fields).forEach(fieldName => {
 			let field = this._fields[fieldName]
-
 			if(field.type === Array){
-				let array = []
 				let subType = field.subType
-				jsonObj[fieldName].forEach(subObject => {
-					array.push(new subType(subObject))
-				})
-				this[fieldName] = array
+				this[fieldName] = jsonObj[fieldName].map(subObject => new subType(subObject))
 			}
 			else{
 				this[fieldName] = jsonObj[fieldName]
@@ -92,10 +87,27 @@ class BaseDTO{
 		let jsonObj = {}
 		Object.keys(this._fields).forEach(fieldName => {
 			let field = this._fields[fieldName]
-			jsonObj[fieldName] = this[fieldName]
+			if(field.type === Array){
+				if(isDTO(field.subType)){
+					jsonObj[fieldName] = this[fieldName].map(subObject => subObject.toJSON())
+				}
+				else{
+					jsonObj[fieldName] = this[fieldName]
+				}
+			}
+			else if(isDTO(field.type)){
+				jsonObj[fieldName] = this[fieldName].toJSON()
+			}
+			else{
+				jsonObj[fieldName] = this[fieldName]
+			}
 		})
 		return jsonObj
 	}
+}
+
+function isDTO(cls){
+	return Boolean(cls.prototype instanceof BaseDTO)
 }
 
 module.exports = BaseDTO
