@@ -29,21 +29,30 @@ class BaseDTO{
 		this._fields = BaseDTO._initFields(this.constructor.getFields())
 
 		let proxy = new Proxy(this, {
+			// Intercepts set/get and handles type-checking
+			// Only handles conversion of primitive types
 			set(target, name, value) {
 				if (name === '_fields') {
 					throw new Error(`Unable to set set value, "_fields" is a reserved property used by couch-js.`);
 				}
 
-				let fieldType = target._fields[name].type
-				if (fieldType === Array){
-					if(!Array.isArray(value)){
-						throw new Error('Expected Array type!')
-					}
+				if(value === undefined || value === null){
+					//TODO: Throw an error if value is required
+					//Should we convert all nulls to undefined?
+					target[name] = value;
+					return true;
 				}
-				else {
-					if(value && typeof value !== fieldType){
-						value = new fieldType(value)
-					}
+
+
+				let fieldType = target._fields[name].type
+
+				if (fieldType === Array && !Array.isArray(value)){
+					throw new Error('Expected Array type!')
+				}
+
+				if(isPrimitive(fieldType)){
+					target[name] = fieldType(value);
+					return true;
 				}
 
 				target[name] = value;
@@ -82,6 +91,21 @@ class BaseDTO{
 					this[fieldName] = [];
 				}
 			}
+			else if(field.type === Object){
+				if(jsonObj[fieldName]) {
+					let dictionary = {}
+					let subType = field.subType
+					Object.entries(jsonObj[fieldName])
+					.forEach(entry => dictionary[entry[0]] = new subType(entry[1]))
+					this[fieldName] = dictionary
+				}
+				else{
+					this[fieldName] = {}
+				}
+			}
+			else if(isDTO(field.type)){
+				this[fieldName] = new field.type(jsonObj[fieldName])
+			}
 			else{
 				this[fieldName] = jsonObj[fieldName]
 			}
@@ -100,6 +124,23 @@ class BaseDTO{
 					jsonObj[fieldName] = this[fieldName]
 				}
 			}
+
+
+			else if(field.type === Object){
+				// TODO: make this more robust, it will only convert shallow instances of DTOs back to json
+				if(isDTO(field.subType)) {
+					let dictionary = {}
+					Object.entries(this[fieldName])
+					.forEach(entry => dictionary[entry[0]] = entry[1].toJSON())
+					jsonObj[fieldName] = dictionary
+				}
+				else{
+					jsonObj[fieldName] = this[fieldName]
+				}
+			}
+
+
+
 			else if(isDTO(field.type)){
 				jsonObj[fieldName] = this[fieldName].toJSON()
 			}
@@ -113,6 +154,10 @@ class BaseDTO{
 
 function isDTO(cls){
 	return Boolean(cls.prototype instanceof BaseDTO)
+}
+
+function isPrimitive(cls){
+	return Boolean(cls === Boolean || cls === Number || cls === String || cls === Object)
 }
 
 module.exports = BaseDTO
