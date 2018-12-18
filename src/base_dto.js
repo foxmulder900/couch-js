@@ -29,6 +29,9 @@ class BaseDTO{
 		this._fields = BaseDTO._initFields(this.constructor.getFields())
 
 		let proxy = new Proxy(this, {
+			// Intercepts set/get and handles type-checking
+			// Only handles conversion of native types such as:
+			//   number -> string
 			set(target, name, value) {
 				if (name === '_fields') {
 					throw new Error(`Unable to set set value, "_fields" is a reserved property used by couch-js.`);
@@ -80,6 +83,18 @@ class BaseDTO{
 				}
 				else{
 					this[fieldName] = [];
+				}
+			}
+			else if(field.type === Object){
+				if(jsonObj[fieldName]) {
+					let dictionary = {}
+					let subType = field.subType
+					Object.entries(jsonObj[fieldName])
+					.forEach(entry => dictionary[entry[0]] = new subType(entry[1]))
+					this[fieldName] = dictionary
+				}
+				else{
+					this[fieldName] = {}
 				}
 			}
 			else{
