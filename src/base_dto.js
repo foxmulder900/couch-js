@@ -74,8 +74,13 @@ class BaseDTO{
 		Object.keys(this._fields).forEach(fieldName => {
 			let field = this._fields[fieldName]
 			if(field.type === Array){
-				let subType = field.subType
-				this[fieldName] = jsonObj[fieldName].map(subObject => new subType(subObject))
+				if(jsonObj[fieldName]) {
+					let subType = field.subType
+					this[fieldName] = jsonObj[fieldName].map(subObject => new subType(subObject))
+				}
+				else{
+					this[fieldName] = [];
+				}
 			}
 			else{
 				this[fieldName] = jsonObj[fieldName]

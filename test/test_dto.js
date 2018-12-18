@@ -38,6 +38,13 @@ describe('BaseDto', () => {
 			expect(dto.nested_dto_array[1].message).toEqual(nested_dto_array[1].message)
 		})
 
+		it('should gracefully handle JSON with missing fields', () => {
+			let dto_with_defaults = new TestDto({_id, _rev})
+
+			expect(dto_with_defaults.nested_dto).toEqual(undefined)
+			expect(dto_with_defaults.nested_dto_array).toEqual([])
+		})
+
 		it('should be able to be converted back to a JavaScript Object', () => {
 			let object = dto.toJSON()
 
