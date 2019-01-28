@@ -1,5 +1,4 @@
 const DatabaseAPI = require('../src/database_api')
-const DocumentAPI = require('../src/document_api')
 const BaseDTO = require('../src/base_dto')
 
 class TestDTO extends BaseDTO{
@@ -8,36 +7,14 @@ class TestDTO extends BaseDTO{
 	}
 
 	static getFields(){
-		return ['_id', '_rev']
+		return['_id', '_rev', 'testField']
 	}
 }
 
 describe('DatabaseAPI', () => {
-	let database
 
-	beforeEach(() => {
-		database = new DatabaseAPI('http://localhost:5984', TestDTO)
-	})
-
-	describe('document factory', () => {
-		it('should return a new DatabaseAPI instance, with a dto if an id is provided', () => {
-			let docId = 'test_doc'
-
-			let document = database.document(docId)
-
-			expect(document).toEqual(jasmine.any(DocumentAPI))
-			expect(document.dto._id).toEqual(docId)
-		})
-
-		it('should return a new DatabaseAPI instance, without a dto when an id is NOT provided', () => {
-			let document = database.document()
-
-			expect(document).toEqual(jasmine.any(DocumentAPI))
-			expect(document.dto).toBe(undefined)
-		})
-	})
-
-	describe('CRUD', () => {
+	describe('Database CRUD', () => {
+		let database = new DatabaseAPI('http://localhost:5984', TestDTO)
 		let documentIds
 
 		it('creates a new database', done => {
@@ -56,37 +33,35 @@ describe('DatabaseAPI', () => {
 
 		it('should create documents through factories and return the correct count', done => {
 			Promise.all([
-				database.document().create(),
-				database.document().create(),
-				database.document().create()
+				database.createDoc(new TestDTO()),
+				database.createDoc(new TestDTO()),
+				database.createDoc(new TestDTO())
 			])
 				.then(ids => documentIds = ids)
-				.then(() => database.countDocuments())
+				.then(() => database.docCount())
 				.then(count => {
 					expect(count).toEqual(3)
 					done()
 				})
 		})
 
-		it('should return all documents', done => {
-			database.getDocuments()
+		it('should return all docs as dtos when getDocuments is called w/o parameters', done => {
+			database.allDocs()
 				.then(documents => {
-					let resultIds = documents.map(document => document.dto._id)
-					expect(resultIds.length).toEqual(3)
-					expect(resultIds.find(id => id === documentIds[0])).toBeTruthy()
-					expect(resultIds.find(id => id === documentIds[1])).toBeTruthy()
-					expect(resultIds.find(id => id === documentIds[2])).toBeTruthy()
+					expect(documents.length).toEqual(3)
+					expect(documents.find(doc => doc._id === documentIds[0])).toBeTruthy()
+					expect(documents.find(doc => doc._id === documentIds[1])).toBeTruthy()
+					expect(documents.find(doc => doc._id === documentIds[2])).toBeTruthy()
 					done()
 				})
 		})
 
 		it('should get specific documents', done => {
-			database.getDocuments([documentIds[1], documentIds[2]])
+			database.allDocs([documentIds[1], documentIds[2]])
 				.then(documents => {
-					let resultIds = documents.map(document => document.dto._id)
-					expect(resultIds.length).toEqual(2)
-					expect(resultIds.find(id => id === documentIds[1])).toBeTruthy()
-					expect(resultIds.find(id => id === documentIds[2])).toBeTruthy()
+					expect(documents.length).toEqual(2)
+					expect(documents.find(doc => doc._id === documentIds[1])).toBeTruthy()
+					expect(documents.find(doc => doc._id === documentIds[2])).toBeTruthy()
 					done()
 				})
 		})
@@ -98,12 +73,11 @@ describe('DatabaseAPI', () => {
 				}
 			}
 
-			database.query(queryObject)
+			database.queryDocs(queryObject)
 				.then(documents => {
-					let resultIds = documents.map(document => document.dto._id)
-					expect(resultIds.length).toEqual(2)
-					expect(resultIds.find(id => id === documentIds[0])).toBeTruthy()
-					expect(resultIds.find(id => id === documentIds[2])).toBeTruthy()
+					expect(documents.length).toEqual(2)
+					expect(documents.find(doc => doc._id === documentIds[0])).toBeTruthy()
+					expect(documents.find(doc => doc._id === documentIds[2])).toBeTruthy()
 					done()
 				})
 		})
@@ -112,13 +86,78 @@ describe('DatabaseAPI', () => {
 			database.delete()
 				.then(() => assertExists(false, done))
 		})
-	})
 
-	function assertExists(exists, done){
-		database.exists()
+		function assertExists(exists, done){
+			database.exists()
 			.then((response) => {
 				expect(response).toBe(exists)
 				done()
 			})
-	}
+		}
+	})
+
+	describe('Document CRUD', () => {
+		let database = new DatabaseAPI('http://localhost:5984', TestDTO)
+		let docId
+		let docRev
+		let testFieldValue = 'hello'
+		let dto = new TestDTO({testField: testFieldValue})
+
+		beforeAll(done=>{
+			database.create().then(done)
+		})
+
+		it('creates a new document and populates id and rev on dto', done => {
+			database.createDoc(dto)
+			.then(() => {
+				expect(dto._id).not.toBe(undefined)
+				expect(dto._rev).not.toBe(undefined)
+				assertExists(true, dto._id, done)
+				docId = dto._id
+				docRev = dto._rev
+			})
+		})
+
+		describe('with the new document', () => {
+			let updatedTestFieldValue = 'world!'
+
+			it('reads the document', done => {
+				database.readDoc(docId)
+				.then(dto => {
+					expect(dto.testField).toEqual(testFieldValue)
+					done()
+				})
+			})
+
+			it('updates the document', done => {
+				let initialRevision = docRev
+				dto.testField = updatedTestFieldValue
+
+				database.updateDoc(dto)
+				.then(() => {
+					expect(dto._rev).not.toBe(undefined)
+					expect(dto._rev).not.toEqual(initialRevision)
+					expect(dto.testField).toEqual(updatedTestFieldValue)
+					done()
+				})
+			})
+
+			it('deletes the document', done => {
+				database.deleteDoc(dto)
+				.then(() => assertExists(false, docId, done))
+			})
+		})
+
+		afterAll(done=>{
+			database.delete().then(done)
+		})
+
+		function assertExists(exists, documentId, done){
+			database.docExists(documentId)
+			.then((response) => {
+				expect(response).toBe(exists)
+				done()
+			})
+		}
+	})
 })
