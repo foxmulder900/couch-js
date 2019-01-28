@@ -19,6 +19,9 @@ class BaseDTO{
 				}
 			}
 			else{
+				if((field.type === Object || field.type === Array) && field.subType === undefined){
+					field.subType = String
+				}
 				fieldMap[field.name] = field
 			}
 		})
