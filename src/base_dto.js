@@ -36,14 +36,14 @@ class BaseDTO{
 			// Only handles conversion of primitive types
 			set(target, name, value) {
 				if (name === '_fields') {
-					throw new Error(`Unable to set set value, "_fields" is a reserved property used by couch-js.`);
+					throw new Error(`Unable to set set value, "_fields" is a reserved property used by couch-js.`)
 				}
 
 				if(value === undefined || value === null){
 					//TODO: Throw an error if value is required
 					//Should we convert all nulls to undefined?
-					target[name] = value;
-					return true;
+					target[name] = value
+					return true
 				}
 
 
@@ -54,12 +54,12 @@ class BaseDTO{
 				}
 
 				if(isPrimitive(fieldType)){
-					target[name] = fieldType(value);
-					return true;
+					target[name] = fieldType(value)
+					return true
 				}
 
-				target[name] = value;
-				return true;
+				target[name] = value
+				return true
 			},
 
 			get(target, name) {
@@ -73,9 +73,9 @@ class BaseDTO{
 					}
 				}
 
-				return target[name];
+				return target[name]
 			}
-		});
+		})
 
 		jsonObj && proxy.fromJSON(jsonObj)
 
@@ -91,7 +91,7 @@ class BaseDTO{
 					this[fieldName] = jsonObj[fieldName].map(subObject => new subType(subObject))
 				}
 				else{
-					this[fieldName] = [];
+					this[fieldName] = []
 				}
 			}
 			else if(field.type === Object){
