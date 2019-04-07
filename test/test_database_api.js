@@ -12,7 +12,6 @@ class TestDTO extends BaseDTO{
 }
 
 describe('DatabaseAPI', () => {
-
 	describe('Database CRUD', () => {
 		let database = new DatabaseAPI('http://localhost:5984', TestDTO)
 		let documentIds
@@ -89,10 +88,10 @@ describe('DatabaseAPI', () => {
 
 		function assertExists(exists, done){
 			database.exists()
-			.then((response) => {
-				expect(response).toBe(exists)
-				done()
-			})
+				.then((response) => {
+					expect(response).toBe(exists)
+					done()
+				})
 		}
 	})
 
@@ -103,19 +102,19 @@ describe('DatabaseAPI', () => {
 		let testFieldValue = 'hello'
 		let dto = new TestDTO({testField: testFieldValue})
 
-		beforeAll(done=>{
+		beforeAll(done => {
 			database.create().then(done)
 		})
 
 		it('creates a new document and populates id and rev on dto', done => {
 			database.createDoc(dto)
-			.then(() => {
-				expect(dto._id).not.toBe(undefined)
-				expect(dto._rev).not.toBe(undefined)
-				assertExists(true, dto._id, done)
-				docId = dto._id
-				docRev = dto._rev
-			})
+				.then(() => {
+					expect(dto._id).not.toBe(undefined)
+					expect(dto._rev).not.toBe(undefined)
+					assertExists(true, dto._id, done)
+					docId = dto._id
+					docRev = dto._rev
+				})
 		})
 
 		describe('with the new document', () => {
@@ -123,10 +122,10 @@ describe('DatabaseAPI', () => {
 
 			it('reads the document', done => {
 				database.readDoc(docId)
-				.then(dto => {
-					expect(dto.testField).toEqual(testFieldValue)
-					done()
-				})
+					.then(dto => {
+						expect(dto.testField).toEqual(testFieldValue)
+						done()
+					})
 			})
 
 			it('updates the document', done => {
@@ -134,30 +133,30 @@ describe('DatabaseAPI', () => {
 				dto.testField = updatedTestFieldValue
 
 				database.updateDoc(dto)
-				.then(() => {
-					expect(dto._rev).not.toBe(undefined)
-					expect(dto._rev).not.toEqual(initialRevision)
-					expect(dto.testField).toEqual(updatedTestFieldValue)
-					done()
-				})
+					.then(() => {
+						expect(dto._rev).not.toBe(undefined)
+						expect(dto._rev).not.toEqual(initialRevision)
+						expect(dto.testField).toEqual(updatedTestFieldValue)
+						done()
+					})
 			})
 
 			it('deletes the document', done => {
 				database.deleteDoc(dto)
-				.then(() => assertExists(false, docId, done))
+					.then(() => assertExists(false, docId, done))
 			})
 		})
 
-		afterAll(done=>{
+		afterAll(done => {
 			database.delete().then(done)
 		})
 
 		function assertExists(exists, documentId, done){
 			database.docExists(documentId)
-			.then((response) => {
-				expect(response).toBe(exists)
-				done()
-			})
+				.then((response) => {
+					expect(response).toBe(exists)
+					done()
+				})
 		}
 	})
 })
