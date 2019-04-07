@@ -24,20 +24,20 @@ class SessionAPI{
 			},
 			body: JSON.stringify({name, password})
 		})
-		.then(response => {
-			if(!this.http_only){
-				this.cookie = response.headers.get('set-cookie')
-			}
-			return response.json()
-		})
-		.then(response => {
-			if(response['ok']){
-				this.userName = response['name']
-				this.roles = response['roles']
-				return true
-			}
-			return false
-		})
+			.then(response => {
+				if(!this.http_only){
+					this.cookie = response.headers.get('set-cookie')
+				}
+				return response.json()
+			})
+			.then(response => {
+				if(response['ok']){
+					this.userName = response['name']
+					this.roles = response['roles']
+					return true
+				}
+				return false
+			})
 	}
 
 	delete(){
@@ -46,19 +46,19 @@ class SessionAPI{
 			credentials: 'include',
 			headers: this.http_only ? {} : {'Cookie': this.cookie}
 		})
-		.then(response => response.json())
-		.then(response => {
-			if(response['ok']){
-				this.cookie = null
-				this.userName = null
-				this.roles = null
-				return true
-			}
-			return false
-		})
+			.then(response => response.json())
+			.then(response => {
+				if(response['ok']){
+					this.cookie = null
+					this.userName = null
+					this.roles = null
+					return true
+				}
+				return false
+			})
 	}
 
-	get_info() {
+	get_info(){
 		return fetch(this.baseUrl, {
 			method: 'GET',
 			credentials: 'include',

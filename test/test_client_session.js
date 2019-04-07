@@ -1,21 +1,19 @@
 const Client = require('../src/client')
 
-
 describe('Client', () => {
-
 	let client = new Client()
 
-	beforeAll(done=>{
+	beforeAll(done => {
 		createTestUser(client).then(done)
 	})
 
-	it('can create a session',  done => {
+	it('can create a session', done => {
 		client.login('test_user', 'test_password')
-		.then(response => {
-			expect(response).toBeTruthy()
-			expect(client.session.userName).toEqual('test_user')
-			done()
-		})
+			.then(response => {
+				expect(response).toBeTruthy()
+				expect(client.session.userName).toEqual('test_user')
+				done()
+			})
 	})
 
 	it('has an active session', done => {
@@ -40,13 +38,12 @@ describe('Client', () => {
 		})
 	})
 
-	afterAll(done=>{
+	afterAll(done => {
 		client.login('test_user', 'test_password')
-		.then(() => deleteTestUser(client, client.session.cookie))
-		.then(done)
+			.then(() => deleteTestUser(client, client.session.cookie))
+			.then(done)
 	})
 })
-
 
 // A few helper methods to create and remove an admin user, functionality that we don't want the client itself to have
 function createTestUser(client){

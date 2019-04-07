@@ -1,13 +1,18 @@
 {
     "env": {
-        "jasmine": true
+        "jasmine": true,
+        "browser": true,
+        "node": true
     },
     "extends": "standard",
     "plugins": ["jasmine"],
     "rules": {
-        "no-return-assign": "off",
-        "keyword-spacing": ["error", {"before": false, "after": false}],
+        "camelcase": "off",
         "indent": ["error", "tab"],
+        "keyword-spacing": ["error", {"before": false, "after": false}],
+        "new-cap": "off",
+        "no-global-assign": "off",
+        "no-return-assign": "off",
         "no-tabs": "off",
         "object-curly-spacing": ["error", "never"],
         "space-before-blocks": ["error", "never"],

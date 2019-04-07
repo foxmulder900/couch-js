@@ -1,8 +1,8 @@
 const BaseDto = require('../src/base_dto')
 
-class TestDto extends BaseDto {
+class TestDto extends BaseDto{
 	static getFields(){
-		return [
+		return[
 			'_id',
 			'_rev',
 			'number_as_string',
@@ -18,9 +18,9 @@ class TestDto extends BaseDto {
 	}
 }
 
-class TestNestedDto extends BaseDto {
+class TestNestedDto extends BaseDto{
 	static getFields(){
-		return ['message']
+		return['message']
 	}
 }
 
@@ -31,18 +31,26 @@ describe('BaseDto', () => {
 		let _rev = 'test-rev'
 		let boolean_value_true = true
 		let boolean_value_false = false
-		let number_as_string = 5 //This should be interpreted as a string
-		let float_as_string = 5.3 //This should be interpreted as a string
-		let typed_number = 5 //This should be interpreted as a Number
-		let typed_number_float = 5.2 //This should be interpreted as a Number as well
+		let number_as_string = 5 // This should be interpreted as a string
+		let float_as_string = 5.3 // This should be interpreted as a string
+		let typed_number = 5 // This should be interpreted as a Number
+		let typed_number_float = 5.2 // This should be interpreted as a Number as well
 		let nested_dto = {message: 'Hello world!'}
 		let nested_dto_array = [{message: 'one'}, {message: 'two'}]
 		let nested_dto_dictionary = {'three': {message: 'three'}, 'four': {message: 'four'}}
 
 		it('should be built from a JavaScript Object', () => {
-			dto = new TestDto({_id, _rev, boolean_value_true, boolean_value_false,
-				number_as_string, float_as_string, typed_number, typed_number_float,
-				nested_dto, nested_dto_array, nested_dto_dictionary})
+			dto = new TestDto({_id,
+				_rev,
+				boolean_value_true,
+				boolean_value_false,
+				number_as_string,
+				float_as_string,
+				typed_number,
+				typed_number_float,
+				nested_dto,
+				nested_dto_array,
+				nested_dto_dictionary})
 
 			expect(dto._id).toEqual(_id)
 			expect(dto._rev).toEqual(_rev)

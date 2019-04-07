@@ -17,8 +17,7 @@ class BaseDTO{
 				fieldMap[field] = {
 					type: String
 				}
-			}
-			else{
+			}else{
 				if((field.type === Object || field.type === Array) && field.subType === undefined){
 					field.subType = String
 				}
@@ -34,22 +33,21 @@ class BaseDTO{
 		let proxy = new Proxy(this, {
 			// Intercepts set/get and handles type-checking
 			// Only handles conversion of primitive types
-			set(target, name, value) {
-				if (name === '_fields') {
+			set(target, name, value){
+				if(name === '_fields'){
 					throw new Error(`Unable to set set value, "_fields" is a reserved property used by couch-js.`)
 				}
 
 				if(value === undefined || value === null){
-					//TODO: Throw an error if value is required
-					//Should we convert all nulls to undefined?
+					// TODO: Throw an error if value is required
+					// Should we convert all nulls to undefined?
 					target[name] = value
 					return true
 				}
 
-
 				let fieldType = target._fields[name].type
 
-				if (fieldType === Array && !Array.isArray(value)){
+				if(fieldType === Array && !Array.isArray(value)){
 					throw new Error('Expected Array type!')
 				}
 
@@ -62,10 +60,10 @@ class BaseDTO{
 				return true
 			},
 
-			get(target, name) {
+			get(target, name){
 				let field = target._fields[name]
 				if(field){
-					if (field.type === String){
+					if(field.type === String){
 						let value = target[name]
 						if(value){
 							return target[name].valueOf()
@@ -86,30 +84,25 @@ class BaseDTO{
 		Object.keys(this._fields).forEach(fieldName => {
 			let field = this._fields[fieldName]
 			if(field.type === Array){
-				if(jsonObj[fieldName]) {
+				if(jsonObj[fieldName]){
 					let subType = field.subType
 					this[fieldName] = jsonObj[fieldName].map(subObject => new subType(subObject))
-				}
-				else{
+				}else{
 					this[fieldName] = []
 				}
-			}
-			else if(field.type === Object){
-				if(jsonObj[fieldName]) {
+			}else if(field.type === Object){
+				if(jsonObj[fieldName]){
 					let dictionary = {}
 					let subType = field.subType
 					Object.entries(jsonObj[fieldName])
-					.forEach(entry => dictionary[entry[0]] = new subType(entry[1]))
+						.forEach(entry => dictionary[entry[0]] = new subType(entry[1]))
 					this[fieldName] = dictionary
-				}
-				else{
+				}else{
 					this[fieldName] = {}
 				}
-			}
-			else if(isDTO(field.type)){
+			}else if(isDTO(field.type)){
 				this[fieldName] = new field.type(jsonObj[fieldName])
-			}
-			else{
+			}else{
 				this[fieldName] = jsonObj[fieldName]
 			}
 		})
@@ -122,32 +115,22 @@ class BaseDTO{
 			if(field.type === Array){
 				if(isDTO(field.subType)){
 					jsonObj[fieldName] = this[fieldName].map(subObject => subObject.toJSON())
-				}
-				else{
+				}else{
 					jsonObj[fieldName] = this[fieldName]
 				}
-			}
-
-
-			else if(field.type === Object){
+			}else if(field.type === Object){
 				// TODO: make this more robust, it will only convert shallow instances of DTOs back to json
-				if(isDTO(field.subType)) {
+				if(isDTO(field.subType)){
 					let dictionary = {}
 					Object.entries(this[fieldName])
-					.forEach(entry => dictionary[entry[0]] = entry[1].toJSON())
+						.forEach(entry => dictionary[entry[0]] = entry[1].toJSON())
 					jsonObj[fieldName] = dictionary
-				}
-				else{
+				}else{
 					jsonObj[fieldName] = this[fieldName]
 				}
-			}
-
-
-
-			else if(isDTO(field.type)){
+			}else if(isDTO(field.type)){
 				jsonObj[fieldName] = this[fieldName].toJSON()
-			}
-			else{
+			}else{
 				jsonObj[fieldName] = this[fieldName]
 			}
 		})

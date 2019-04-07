@@ -70,22 +70,22 @@ class DatabaseAPI{
 			},
 			body: JSON.stringify(jsonObj)
 		})
-		.then(response => response.json())
-		.then(json => {
-			if(!json['ok']){
-				console.warn("WARNING: JSON not OK!")
-				console.warn(json)
-			}
-			dto._id = json['id']
-			dto._rev = json['rev']
-			return dto._id
-		})
+			.then(response => response.json())
+			.then(json => {
+				if(!json['ok']){
+					console.warn('WARNING: JSON not OK!')
+					console.warn(json)
+				}
+				dto._id = json['id']
+				dto._rev = json['rev']
+				return dto._id
+			})
 	}
 
 	readDoc(documentId){
 		return fetch(`${this.baseUrl}/${documentId}`)
-		.then(response => response.json())
-		.then(json => new this.dtoClass(json))
+			.then(response => response.json())
+			.then(json => new this.dtoClass(json))
 	}
 
 	deleteDoc(dto){
@@ -96,7 +96,7 @@ class DatabaseAPI{
 
 	docExists(documentId){
 		return fetch(`${this.baseUrl}/${documentId}`, {method: 'HEAD'})
-		.then((response) => response.status === 200)
+			.then((response) => response.status === 200)
 	}
 
 	updateDoc(dto){
@@ -108,8 +108,8 @@ class DatabaseAPI{
 			},
 			body: JSON.stringify(jsonObj)
 		})
-		.then(response => response.json())
-		.then(json => dto._rev = json['rev'])
+			.then(response => response.json())
+			.then(json => dto._rev = json['rev'])
 	}
 
 	queryDocs(queryObject){

@@ -1,10 +1,9 @@
 let HTTP_ONLY
-if (typeof fetch === 'undefined') {
+if(typeof fetch === 'undefined'){
 	fetch = require('node-fetch')
-	HTTP_ONLY = false;
-}
-else{
-	HTTP_ONLY = true;
+	HTTP_ONLY = false
+}else{
+	HTTP_ONLY = true
 }
 const DatabaseAPI = require('./database_api')
 const SessionAPI = require('./session_api')
