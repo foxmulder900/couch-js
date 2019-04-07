@@ -1,5 +1,14 @@
+/**
+ * A simple wrapper to make CouchDB cookie authentication a piece of cake.
+ * https://docs.couchdb.org/en/stable/api/server/authn.html#cookie-authentication
+ */
 class SessionAPI{
 	constructor(baseUrl, http_only=true){
+		/**
+		 * @param {string} baseUrl The CouchDB host URL without any path information.
+		 * @param {boolean} http_only If true, the class assumes there is a browser correctly handling cookie headers.
+		 * 		Otherwise cookies are managed by the class. Defaults to true, pass false for environments such as Node.
+		 */
 		this.baseUrl = `${baseUrl}/_session`
 		this.userName = null
 		this.roles = null
