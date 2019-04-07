@@ -8,4 +8,5 @@ before_script:
 - while [ $? -ne 0 ]; do sleep 1 && curl -v http://localhost:5984; done
 
 script:
+  - npm run lint
   - npm run test
