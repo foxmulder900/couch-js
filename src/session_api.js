@@ -10,8 +10,7 @@ class SessionAPI{
 		 * 		Otherwise cookies are managed by the class. Defaults to true, pass false for environments such as Node.
 		 */
 		this.baseUrl = `${baseUrl}/_session`
-		this.userName = null
-		this.roles = null
+		this._userInfo = {}
 		this.http_only = http_only
 		this.cookie = null
 	}
@@ -30,14 +29,7 @@ class SessionAPI{
 				}
 				return response.json()
 			})
-			.then(response => {
-				if(response['ok']){
-					this.userName = response['name']
-					this.roles = response['roles']
-					return true
-				}
-				return false
-			})
+			.then(response => response['ok'])
 	}
 
 	delete(){
@@ -50,20 +42,29 @@ class SessionAPI{
 			.then(response => {
 				if(response['ok']){
 					this.cookie = null
-					this.userName = null
-					this.roles = null
+					this._userInfo = {}
 					return true
 				}
 				return false
 			})
 	}
 
-	get_info(){
+	_userInfoIsEmpty(){
+		return Object.keys(this._userInfo).length === 0
+	}
+
+	_fetchInfo(){
 		return fetch(this.baseUrl, {
 			method: 'GET',
 			credentials: 'include',
 			headers: this.http_only ? {} : {'Cookie': this.cookie}
-		}).then(response => response.json())
+		})
+			.then(response => response.json())
+			.then(json => json['userCtx'])
+	}
+
+	getUserInfo(){
+		return this._userInfoIsEmpty() ? this._fetchInfo() : Promise.resolve(this._userInfo)
 	}
 }
 
