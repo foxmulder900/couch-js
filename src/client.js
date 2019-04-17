@@ -12,11 +12,19 @@ class Client{
 	constructor(host = 'localhost', port=5984, secure=false){
 		let protocol = secure ? 'https' : 'http'
 		this.baseUrl = `${protocol}://${host}:${port}`
-		this.session = null
+		this._session = null
+		this._databases = {}
+	}
+
+	_getSession(){
+		this._session = this._session || new SessionAPI(this.baseUrl, HTTP_ONLY)
+		return this._session
 	}
 
 	database(dtoClass){
-		return new DatabaseAPI(this.baseUrl, dtoClass)
+		let database = this._databases[dtoClass] || new DatabaseAPI(this.baseUrl, dtoClass)
+		this._databases[dtoClass] = database
+		return database
 	}
 
 	listDatabases(){
@@ -25,12 +33,15 @@ class Client{
 	}
 
 	login(userName, password){
-		this.session = new SessionAPI(this.baseUrl, HTTP_ONLY)
-		return this.session.create(userName, password)
+		return this._getSession().create(userName, password)
 	}
 
 	logout(){
-		return this.session.delete()
+		return this._getSession().delete()
+	}
+
+	getUserInfo(){
+		return this._getSession().getUserInfo()
 	}
 }
 

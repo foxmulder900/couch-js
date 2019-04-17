@@ -11,14 +11,17 @@ describe('Client', () => {
 		client.login('test_user', 'test_password')
 			.then(response => {
 				expect(response).toBeTruthy()
-				expect(client.session.userName).toEqual('test_user')
+			})
+			.then(() => client.getUserInfo())
+			.then(userInfo => {
+				expect(userInfo.name).toEqual('test_user')
 				done()
 			})
 	})
 
 	it('has an active session', done => {
-		client.session.get_info().then(response => {
-			expect(response['userCtx']['name']).toEqual('test_user')
+		client.getUserInfo().then(response => {
+			expect(response.name).toEqual('test_user')
 			done()
 		})
 	})
@@ -26,21 +29,24 @@ describe('Client', () => {
 	it('can delete a session', done => {
 		client.logout().then(response => {
 			expect(response).toBeTruthy()
-			expect(client.session.userName).toBeNull()
+		})
+		.then(() => client.getUserInfo())
+		.then(userInfo => {
+			expect(userInfo.name).toBeNull()
 			done()
 		})
 	})
 
 	it('does not have an active session', done => {
-		client.session.get_info().then(response => {
-			expect(response['userCtx']['name']).toBeNull()
+		client.getUserInfo().then(response => {
+			expect(response.name).toBeNull()
 			done()
 		})
 	})
 
 	afterAll(done => {
 		client.login('test_user', 'test_password')
-			.then(() => deleteTestUser(client, client.session.cookie))
+			.then(() => deleteTestUser(client, client._session.cookie))
 			.then(done)
 	})
 })
