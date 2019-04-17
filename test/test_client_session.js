@@ -30,11 +30,11 @@ describe('Client', () => {
 		client.logout().then(response => {
 			expect(response).toBeTruthy()
 		})
-		.then(() => client.getUserInfo())
-		.then(userInfo => {
-			expect(userInfo.name).toBeNull()
-			done()
-		})
+			.then(() => client.getUserInfo())
+			.then(userInfo => {
+				expect(userInfo.name).toBeNull()
+				done()
+			})
 	})
 
 	it('does not have an active session', done => {

@@ -29,7 +29,7 @@ class SessionAPI{
 				}
 				return response.json()
 			})
-			.then(response =>  response['ok'])
+			.then(response => response['ok'])
 	}
 
 	delete(){
@@ -59,8 +59,8 @@ class SessionAPI{
 			credentials: 'include',
 			headers: this.http_only ? {} : {'Cookie': this.cookie}
 		})
-		.then(response => response.json())
-		.then(json => json['userCtx'])
+			.then(response => response.json())
+			.then(json => json['userCtx'])
 	}
 
 	getUserInfo(){
