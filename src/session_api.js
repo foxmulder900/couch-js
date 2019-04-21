@@ -18,6 +18,7 @@ class SessionAPI{
 	create(name, password){
 		return fetch(this.baseUrl, {
 			method: 'POST',
+			credentials: 'include',
 			headers: {
 				'Content-Type': 'application/json'
 			},
