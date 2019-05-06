@@ -21,8 +21,8 @@ class Client{
 		return this._session
 	}
 
-	database(dtoClass){
-		let database = this._databases[dtoClass] || new DatabaseAPI(this.baseUrl, dtoClass)
+	database(dtoClass, config){
+		let database = this._databases[dtoClass] || new DatabaseAPI(this.baseUrl, dtoClass, config)
 		this._databases[dtoClass] = database
 		return database
 	}
