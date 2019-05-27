@@ -1,30 +1,33 @@
-const BaseDto = require('../src/base_dto')
+const {BaseDTO, FunctionSource} = require('../src/base_dto')
 
-class TestDto extends BaseDto{
-	static getFields(){
-		return[
-			'_id',
-			'_rev',
-			'number_as_string',
-			'float_as_string',
-			{name: 'boolean_value_true', type: Boolean},
-			{name: 'boolean_value_false', type: Boolean},
-			{name: 'typed_number', type: Number},
-			{name: 'typed_number_float', type: Number},
-			{name: 'nested_dto', type: TestNestedDto},
-			{name: 'nested_dto_array', type: Array, subType: TestNestedDto},
-			{name: 'nested_dto_dictionary', type: Object, subType: TestNestedDto}
-		]
+
+describe('BaseDTO', () => {
+
+	class TestDto extends BaseDTO{
+		static getFields(){
+			return[
+				'_id',
+				'_rev',
+				'number_as_string',
+				'float_as_string',
+				{name: 'boolean_value_true', type: Boolean},
+				{name: 'boolean_value_false', type: Boolean},
+				{name: 'typed_number', type: Number},
+				{name: 'typed_number_float', type: Number},
+				{name: 'nested_object', type: Object},
+				{name: 'nested_dto', type: TestNestedDto},
+				{name: 'nested_dto_array', type: Array, subType: TestNestedDto},
+				{name: 'nested_dto_dictionary', type: Object, subType: TestNestedDto}
+			]
+		}
 	}
-}
 
-class TestNestedDto extends BaseDto{
-	static getFields(){
-		return['message']
+	class TestNestedDto extends BaseDTO{
+		static getFields(){
+			return['message']
+		}
 	}
-}
 
-describe('BaseDto', () => {
 	describe('lifecycle', () => {
 		let dto
 		let _id = 'test-id'
@@ -106,5 +109,37 @@ describe('BaseDto', () => {
 			expect(object['nested_dto_array']).toEqual(nested_dto_array)
 			expect(object['nested_dto_dictionary']).toEqual(nested_dto_dictionary)
 		})
+	})
+})
+
+
+describe('FunctionSource', () => {
+
+	function testFunction(a, b){return a+b}
+	let fnSource;
+
+	class DTOWithFunctionSource extends BaseDTO{
+		static getFields(){
+			return [{name: 'callback', type: FunctionSource}]
+		}
+	}
+
+	it('should accept a function as an argument and store it as a string', () => {
+		fnSource = new FunctionSource(testFunction)
+		expect(fnSource.source).toEqual('function testFunction(a, b){return a+b}')
+	})
+
+	it('should be able to convert the source string back into a function', () => {
+		let a = 10, b = 20, sum = 30
+		expect(testFunction(a, b)).toEqual(sum) // sanity check
+		expect(fnSource.toFunction()(a, b)).toEqual(testFunction(a, b))
+	})
+
+	it('should be compatible with BaseDTOs', () => {
+		let dto = new DTOWithFunctionSource()
+
+		dto.callback = testFunction
+
+		expect(dto.toJSON()).toEqual({callback: 'function testFunction(a, b){return a+b}'})
 	})
 })

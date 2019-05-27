@@ -1,19 +1,29 @@
+const Client = require('../src/client')
 const DatabaseAPI = require('../src/database_api')
-const BaseDTO = require('../src/base_dto')
+const {DesignDocDTO} = require('../src/design_doc_dto')
+const {BaseDTO} = require('../src/base_dto')
 
 class TestDTO extends BaseDTO{
 	static databaseName(){
-		return'test_database'
+		return 'test_database'
 	}
 
 	static getFields(){
-		return['_id', '_rev', 'testField']
+		return ['_id', '_rev', 'testField']
 	}
+}
+
+class TestView extends BaseDTO {
+	static databaseName(){
+		return 'test_database'
+	}
+
+	static getFields() { return ['key', 'testField']}
 }
 
 describe('DatabaseAPI', () => {
 	describe('Database CRUD', () => {
-		let database = new DatabaseAPI('http://localhost:5984', TestDTO)
+		let database = new DatabaseAPI(new Client(), TestDTO)
 		let documentIds
 
 		it('creates a new database', done => {
@@ -96,7 +106,7 @@ describe('DatabaseAPI', () => {
 	})
 
 	describe('Document CRUD', () => {
-		let database = new DatabaseAPI('http://localhost:5984', TestDTO)
+		let database = new DatabaseAPI(new Client(), TestDTO)
 		let docId
 		let docRev
 		let testFieldValue = 'hello'
@@ -158,5 +168,102 @@ describe('DatabaseAPI', () => {
 					done()
 				})
 		}
+	})
+
+
+	//TODO: Add test for createDesignDoc
+
+	describe('Join Handling', () => {
+		jasmine.DEFAULT_TIMEOUT_INTERVAL = 50000;
+
+		class TestDTOWithJoins extends BaseDTO{
+
+			static databaseName(){
+				return 'join_test'
+			}
+
+			static getFields(){
+				return [
+					'_id', '_rev',
+					{
+						name: 'foreignValue',
+						source: {
+							database: 'test_database',
+							designDoc: 'projections',
+							view: 'minimal',
+							foreignKey: '_id',
+							sourceField: 'testField'
+						}
+					}
+				]
+			}
+		}
+
+		let database1 = new DatabaseAPI(new Client(), TestDTO)
+		let database2 = new DatabaseAPI(new Client(), TestDTOWithJoins)
+
+		let COUNT = 100
+
+		beforeAll(done => {
+			Promise.all([
+				database1.create()
+				.then(() => {
+
+					let testDocs = []
+					for(let i=0; i<COUNT; i++){
+						testDocs.push(new TestDTO({_id: `fkey-${i}`, testField: `${i}`}))
+					}
+
+					return Promise.all([
+						database1.createDoc(new TestDTO({_id: 'fkey', testField: 'I am from another database!'})),
+						database1.bulkCreateDocs(testDocs)
+					])
+				})
+				.then(() => {
+					let designDoc = new DesignDocDTO({name: 'projections'})
+					designDoc.addView(
+						'minimal',
+						function(doc){emit(doc._id, {testField: doc.testField})}
+					)
+					return database1.createDesignDoc(designDoc)
+				}),
+				database2.create()
+				.then(() => {
+
+					let testDocs = []
+					for(let i=0; i<COUNT; i++){
+						testDocs.push(new TestDTOWithJoins({_id: `fkey-${i}`}))
+					}
+
+					return Promise.all([
+						database2.createDoc(new TestDTOWithJoins({_id: 'fkey'})),
+						database2.bulkCreateDocs(testDocs)
+					])
+				})
+			]).then(done)
+		})
+
+		it('readDoc should include foreign values', done => {
+			database2.readDoc('fkey').then(doc => {
+				expect(doc.foreignValue).toEqual('I am from another database!')
+			}).then(done)
+		})
+
+		it('allDocs should include foreign values', done => {
+			database2.allDocs().then(docs => {
+				expect(docs[0].foreignValue).toEqual('I am from another database!')
+
+				for(let i=0; i<COUNT; i++){
+					expect(docs[i+1]._id).toEqual(`fkey-${docs[i+1].foreignValue}`)
+				}
+			}).then(done)
+		})
+
+		afterAll(done => {
+			Promise.all([
+				database1.delete(),
+				database2.delete()
+			]).then(done)
+		})
 	})
 })

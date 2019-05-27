@@ -22,7 +22,7 @@ class Client{
 	}
 
 	database(dtoClass, config){
-		let database = this._databases[dtoClass] || new DatabaseAPI(this.baseUrl, dtoClass, config)
+		let database = this._databases[dtoClass] || new DatabaseAPI(this, dtoClass, config)
 		this._databases[dtoClass] = database
 		return database
 	}
