@@ -31,13 +31,13 @@ class BaseDTO{
 
 			let src = field.source
 			if(src){
-				let viewId = `${src.database}:${src.designDoc}:${src.view}:${src.foreignKey}`
+				let viewId = `${src.viewDTO.databaseName()}:${src.designDoc}:${src.view}:${src.foreignKey}`
 				if(relationships[viewId]){
 					relationships[viewId].fieldMap[field.name] = src.sourceField
 				}
 				else{
 					relationships[viewId] = {
-						database: src.database,
+						viewDTO: src.viewDTO,
 						designDoc: src.designDoc,
 						view: src.view,
 						foreignKey: src.foreignKey,

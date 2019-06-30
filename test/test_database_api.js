@@ -188,7 +188,7 @@ describe('DatabaseAPI', () => {
 					{
 						name: 'foreignValue',
 						source: {
-							database: 'test_database',
+							viewDTO: TestView,
 							designDoc: 'projections',
 							view: 'minimal',
 							foreignKey: '_id',

@@ -16,46 +16,36 @@ class DatabaseAPI{
 	}
 
 	exists(){
-		return fetch(this.baseUrl, {method: 'HEAD'}).then((response) => response.status === 200)
+		return fetch(this.baseUrl, {method: 'HEAD'})
+		.then((response) => response.status === 200)
 	}
 
 	info(){
 		return fetch(this.baseUrl)
-			.then(response => response.json())
+		.then(response => response.json())
 	}
 
 	// Document level methods
 	allDocs(ids){
-		let url = new URL(`${this.baseUrl}/_all_docs`)
-		url.search = new URLSearchParams({include_docs: true}).toString()
-
-		let promise
-		if(ids){
-			promise = fetch(url.toString(), {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					keys: ids
-				})
+		let config = ids ? {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				keys: ids
 			})
-		}else{
-			promise = fetch(url.toString())
-		}
+		} : undefined
 
-		return promise.then(response => response.json())
-			.then(json => {
-				return json['rows'].map(row => {
-					return new this.dtoClass(row['doc'])
-				})
-			})
-			.then(dto => this._handleJoins(dto))
+		return fetch(`${this.baseUrl}/_all_docs?include_docs=true`, config)
+		.then(response => response.json())
+		.then(json => json['rows'].map(row => new this.dtoClass(row['doc'])))
+		.then(dto => this._handleJoins(dto))
 	}
 
 	docCount(){
 		return this.info()
-			.then(json => json['doc_count'])
+		.then(json => json['doc_count'])
 	}
 
 	createDoc(dto){
@@ -73,8 +63,8 @@ class DatabaseAPI{
 			},
 			body: JSON.stringify(jsonObj)
 		})
-			.then(response => response.json())
-			.then(json => DatabaseAPI._checkJSON(json, dto))
+		.then(response => response.json())
+		.then(json => DatabaseAPI._checkJSON(json, dto))
 	}
 
 	bulkCreateDocs(dtos){
@@ -106,16 +96,16 @@ class DatabaseAPI{
 			},
 			body: JSON.stringify(dto.toJSON())
 		})
-			.then(response => response.json())
-			.then(json => DatabaseAPI._checkJSON(json, dto))
+		.then(response => response.json())
+		.then(json => DatabaseAPI._checkJSON(json, dto))
 	}
 
 	readDoc(documentId){
 		return fetch(`${this.baseUrl}/${documentId}`)
-			.then(response => response.json())
-			.then(json => new this.dtoClass(json))
-			.then(dto => this._handleJoins([dto]))
-			.then(dtos => dtos[0])
+		.then(response => response.json())
+		.then(json => new this.dtoClass(json))
+		.then(dto => this._handleJoins([dto]))
+		.then(dtos => dtos[0])
 	}
 
 	deleteDoc(dto){
@@ -126,20 +116,19 @@ class DatabaseAPI{
 
 	docExists(documentId){
 		return fetch(`${this.baseUrl}/${documentId}`, {method: 'HEAD'})
-			.then((response) => response.status === 200)
+		.then(response => response.status === 200)
 	}
 
 	updateDoc(dto){
-		let jsonObj = dto.toJSON()
 		return fetch(`${this.baseUrl}/${dto._id}`, {
 			method: 'PUT',
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify(jsonObj)
+			body: JSON.stringify(dto.toJSON())
 		})
-			.then(response => response.json())
-			.then(json => dto._rev = json['rev'])
+		.then(response => response.json())
+		.then(json => dto._rev = json['rev'])
 	}
 
 	queryDocs(queryObject){
@@ -151,15 +140,15 @@ class DatabaseAPI{
 			body: JSON.stringify({selector: queryObject})
 		})
 		.then(response => response.json())
-		.then(response => {
-				return response['docs'].map(doc => new this.dtoClass(doc))
-			})
+		.then(response =>  response['docs'].map(doc => new this.dtoClass(doc)))
 		.then(dto => this._handleJoins(dto))
 	}
 
-	fetchView(designDocName, viewName){
+	fetchView(dto, designDocName, viewName, asMap){
 		return fetch(`${this.baseUrl}/_design/${designDocName}/_view/${viewName}`)
 		.then(response => response.json())
+		.then(json =>  json['rows'].map(doc => new dto({key: doc.key, ...doc.value})))
+		.then(dtos =>  asMap ? new Map(dtos.map(dto => [dto.key, dto])) : dtos)
 	}
 
 	// Private helper methods
@@ -181,37 +170,21 @@ class DatabaseAPI{
 		let relationships = dtos[0]._relationships
 
 		let joinPromises = relationships.map(relationship => {
-
-			let viewUrl = `${relationship.database}/_design/${relationship.designDoc}/_view/${relationship.view}`
-
-
-			//this.client.database()
-			return fetch(`http://localhost:5984/${viewUrl}`)
-			.then(response => response.json())
-			.then(json => {
-				let responseMap = {}
-				json.rows.forEach(row => {
-					responseMap[row.key] = row.value
-				})
-				return responseMap
-			})
-		})
-
-		return Promise.all(joinPromises).then(responses => {
-			relationships.forEach((relationship, responseIndex) => {
-				let response = responses[responseIndex]
+			return this.client.database(relationship.viewDTO)
+			.fetchView(relationship.viewDTO, relationship.designDoc, relationship.view, true)
+			.then(view => {
 				dtos.forEach(dto => {
 					Object.entries(relationship.fieldMap).forEach(entry => {
 						let foreignKey = dto[relationship.foreignKey]
 						let destination = entry[0]
 						let source = entry[1]
-						dto[destination] = response[foreignKey][source]
+						dto[destination] = view.get(foreignKey)[source]
 					})
-
 				})
 			})
-			return dtos
 		})
+
+		return Promise.all(joinPromises).then(() => dtos)
 	}
 }
 
