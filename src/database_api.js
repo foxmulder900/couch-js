@@ -144,11 +144,11 @@ class DatabaseAPI{
 		.then(dto => this._handleJoins(dto))
 	}
 
-	fetchView(dto, designDocName, viewName, asMap){
+	fetchView(dto, designDocName, viewName, asObject){
 		return fetch(`${this.baseUrl}/_design/${designDocName}/_view/${viewName}`)
 		.then(response => response.json())
 		.then(json =>  json['rows'].map(doc => new dto({key: doc.key, ...doc.value})))
-		.then(dtos =>  asMap ? new Map(dtos.map(dto => [dto.key, dto])) : dtos)
+		.then(dtos =>  asObject ? Object.fromEntries(dtos.map(dto => [dto.key, dto])) : dtos)
 	}
 
 	// Private helper methods
