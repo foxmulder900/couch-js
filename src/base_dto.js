@@ -2,33 +2,30 @@ class BaseDTO{
 	static databaseName(){
 		throw Error('DTO is not associated with a database. This method needs overridden!')
 	}
+	static fields = []
 
-	static getFields(){
-		// TODO We should use class-fields here instead of defining from a list in the constructor. Once class-fields
-		// TODO are officially supported in JS, this should be refactored.
-		// TODO See proposal here: https://github.com/tc39/proposal-class-fields
-		throw Error('DTO has no fields defined. This method needs overridden!')
+	_getFields(){
+		return Object.getPrototypeOf(this).constructor.fields
 	}
 
-	static _initFields(fields){
-		let fieldMap = {}
-		fields.forEach(field => {
+	_initFields(){
+		this._fields = {}
+		this._getFields().forEach(field => {
 			if(typeof field === 'string'){
-				fieldMap[field] = {
+				this._fields[field] = {
 					type: String
 				}
 			}else{
 				if((field.type === Object || field.type === Array) && field.subType === undefined){
 					field.subType = String
 				}
-				fieldMap[field.name] = field
+				this._fields[field.name] = field
 			}
 		})
-		return fieldMap
 	}
 
 	constructor(jsonObj){
-		this._fields = BaseDTO._initFields(this.constructor.getFields())
+		this._initFields()
 
 		let proxy = new Proxy(this, {
 			// Intercepts set/get and handles type-checking
@@ -45,6 +42,9 @@ class BaseDTO{
 					return true
 				}
 
+				if(!target._fields.hasOwnProperty(name)) {
+					throw new Error(`Cannot set "${name}", field not present on DTO.`)
+				}
 				let fieldType = target._fields[name].type
 
 				if(fieldType === Array && !Array.isArray(value)){

@@ -1,28 +1,26 @@
 const BaseDto = require('../src/base_dto')
 
-class TestDto extends BaseDto{
-	static getFields(){
-		return[
-			'_id',
-			'_rev',
-			'number_as_string',
-			'float_as_string',
-			{name: 'boolean_value_true', type: Boolean},
-			{name: 'boolean_value_false', type: Boolean},
-			{name: 'typed_number', type: Number},
-			{name: 'typed_number_float', type: Number},
-			{name: 'nested_dto', type: TestNestedDto},
-			{name: 'nested_dto_array', type: Array, subType: TestNestedDto},
-			{name: 'nested_dto_dictionary', type: Object, subType: TestNestedDto}
-		]
-	}
+class TestNestedDto extends BaseDto{
+	static fields = ['message']
 }
 
-class TestNestedDto extends BaseDto{
-	static getFields(){
-		return['message']
-	}
+
+class TestDto extends BaseDto{
+	static fields = [
+		'_id',
+		'_rev',
+		'number_as_string',
+		'float_as_string',
+		{name: 'boolean_value_true', type: Boolean},
+		{name: 'boolean_value_false', type: Boolean},
+		{name: 'typed_number', type: Number},
+		{name: 'typed_number_float', type: Number},
+		{name: 'nested_dto', type: TestNestedDto},
+		{name: 'nested_dto_array', type: Array, subType: TestNestedDto},
+		{name: 'nested_dto_dictionary', type: Object, subType: TestNestedDto}
+	]
 }
+
 
 describe('BaseDto', () => {
 	describe('lifecycle', () => {
