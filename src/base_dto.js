@@ -1,8 +1,18 @@
 class BaseDTO{
-	static databaseName(){
-		throw Error('DTO is not associated with a database. This method needs overridden!')
-	}
+	static databaseName = null;
 	static fields = []
+
+	static getDatabaseName(config){
+		if(!this.databaseName){
+			throw new Error('databaseName not defined!')
+		}
+		if(typeof this.databaseName === "function"){
+			return this.databaseName(config)
+		}
+		else{
+			return this.databaseName;
+		}
+	}
 
 	_getFields(){
 		return Object.getPrototypeOf(this).constructor.fields

@@ -3,28 +3,14 @@ const DatabaseAPI = require('../src/database_api')
 const BaseDTO = require('../src/base_dto')
 
 class TestDTO1 extends BaseDTO{
-	static databaseName(){
-		return'test_database_1'
-	}
-	static getFields(){
-		return['_id', '_rev']
-	}
+	static databaseName = 'test_database_1'
 }
 class TestDTO2 extends BaseDTO{
-	static databaseName(){
-		return'test_database_2'
-	}
-	static getFields(){
-		return['_id', '_rev']
-	}
+	static databaseName = 'test_database_2'
 }
 class TestDTO3 extends BaseDTO{
-	static databaseName(){
-		return'test_database_3'
-	}
-	static getFields(){
-		return['_id', '_rev']
-	}
+	static databaseName = 'test_database_3'
+
 }
 
 describe('Client', () => {
@@ -63,9 +49,9 @@ describe('Client', () => {
 				client.database(TestDTO3).create()
 			]).then(() => client.listDatabases())
 				.then(response => {
-					expect(response.includes(TestDTO1.databaseName())).toBeTruthy()
-					expect(response.includes(TestDTO2.databaseName())).toBeTruthy()
-					expect(response.includes(TestDTO3.databaseName())).toBeTruthy()
+					expect(response.includes(TestDTO1.getDatabaseName())).toBeTruthy()
+					expect(response.includes(TestDTO2.getDatabaseName())).toBeTruthy()
+					expect(response.includes(TestDTO3.getDatabaseName())).toBeTruthy()
 					done()
 				})
 		})

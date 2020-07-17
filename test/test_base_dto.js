@@ -1,11 +1,16 @@
 const BaseDto = require('../src/base_dto')
 
+
 class TestNestedDto extends BaseDto{
+	static databaseName = 'test_database'
 	static fields = ['message']
 }
 
 
 class TestDto extends BaseDto{
+	static databaseName(config){
+		return `test_database_${config.value}`
+	}
 	static fields = [
 		'_id',
 		'_rev',
@@ -103,6 +108,15 @@ describe('BaseDto', () => {
 			expect(object['nested_dto']).toEqual(nested_dto)
 			expect(object['nested_dto_array']).toEqual(nested_dto_array)
 			expect(object['nested_dto_dictionary']).toEqual(nested_dto_dictionary)
+		})
+
+		describe('databaseName', () => {
+			it('should support a string value', () => {
+				expect(TestNestedDto.getDatabaseName()).toEqual('test_database')
+			})
+			it('should support a function', () => {
+				expect(TestDto.getDatabaseName({value: 'foo'})).toEqual('test_database_foo')
+			})
 		})
 	})
 })

@@ -2,9 +2,7 @@ const DatabaseAPI = require('../src/database_api')
 const BaseDTO = require('../src/base_dto')
 
 class TestDTO extends BaseDTO{
-	static databaseName(){
-		return'test_database'
-	}
+	static databaseName = 'test_database'
 	static fields = ['_id', '_rev', 'testField']
 }
 
@@ -21,7 +19,7 @@ describe('DatabaseAPI', () => {
 		it('retrieves database info', done => {
 			database.info()
 				.then(response => {
-					expect(response['db_name']).toEqual(database.dtoClass.databaseName())
+					expect(response['db_name']).toEqual(database.dtoClass.getDatabaseName())
 					expect(response['doc_count']).toEqual(0)
 					done()
 				})

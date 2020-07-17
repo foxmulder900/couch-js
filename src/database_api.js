@@ -2,7 +2,7 @@ class DatabaseAPI{
 	constructor(baseUrl, dtoClass, config){
 		this.config = config || {}
 		this.dtoClass = dtoClass
-		this.baseUrl = `${baseUrl}/${dtoClass.databaseName(this.config)}`
+		this.baseUrl = `${baseUrl}/${dtoClass.getDatabaseName(this.config)}`
 	}
 
 	// Database level methods
