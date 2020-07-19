@@ -4,7 +4,7 @@ node_js:
 
 before_script:
 - docker pull couchdb:latest
-- docker run -e COUCHDB_USER=admin -e COUCHDB_PASSWORD=password -p 5984:5984 -d couchdb
+- docker run -e COUCHDB_USER=test_user -e COUCHDB_PASSWORD=test_password -p 5984:5984 -d couchdb
 - while [ $? -ne 0 ]; do sleep 1 && curl -v http://localhost:5984; done
 
 script:
