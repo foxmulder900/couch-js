@@ -6,11 +6,11 @@ class BaseDTO{
 		if(!this.databaseName){
 			throw new Error('databaseName not defined!')
 		}
-		if(typeof this.databaseName === "function"){
+		if(typeof this.databaseName === 'function'){
 			return this.databaseName(config)
 		}
 		else{
-			return this.databaseName;
+			return this.databaseName
 		}
 	}
 
@@ -25,7 +25,8 @@ class BaseDTO{
 				this._fields[field] = {
 					type: String
 				}
-			}else{
+			}
+			else{
 				if((field.type === Object || field.type === Array) && field.subType === undefined){
 					field.subType = String
 				}
@@ -52,7 +53,7 @@ class BaseDTO{
 					return true
 				}
 
-				if(!target._fields.hasOwnProperty(name)) {
+				if(!target._fields.hasOwnProperty(name)){
 					throw new Error(`Cannot set "${name}", field not present on DTO.`)
 				}
 				let fieldType = target._fields[name].type
@@ -97,22 +98,27 @@ class BaseDTO{
 				if(jsonObj[fieldName]){
 					let subType = field.subType
 					this[fieldName] = jsonObj[fieldName].map(subObject => new subType(subObject))
-				}else{
+				}
+				else{
 					this[fieldName] = []
 				}
-			}else if(field.type === Object){
+			}
+			else if(field.type === Object){
 				if(jsonObj[fieldName]){
 					let dictionary = {}
 					let subType = field.subType
 					Object.entries(jsonObj[fieldName])
 						.forEach(entry => dictionary[entry[0]] = new subType(entry[1]))
 					this[fieldName] = dictionary
-				}else{
+				}
+				else{
 					this[fieldName] = {}
 				}
-			}else if(isDTO(field.type)){
+			}
+			else if(isDTO(field.type)){
 				this[fieldName] = new field.type(jsonObj[fieldName])
-			}else{
+			}
+			else{
 				this[fieldName] = jsonObj[fieldName]
 			}
 		})
@@ -125,22 +131,27 @@ class BaseDTO{
 			if(field.type === Array){
 				if(isDTO(field.subType)){
 					jsonObj[fieldName] = this[fieldName].map(subObject => subObject.toJSON())
-				}else{
+				}
+				else{
 					jsonObj[fieldName] = this[fieldName]
 				}
-			}else if(field.type === Object){
+			}
+			else if(field.type === Object){
 				// TODO: make this more robust, it will only convert shallow instances of DTOs back to json
 				if(isDTO(field.subType)){
 					let dictionary = {}
 					Object.entries(this[fieldName])
 						.forEach(entry => dictionary[entry[0]] = entry[1].toJSON())
 					jsonObj[fieldName] = dictionary
-				}else{
+				}
+				else{
 					jsonObj[fieldName] = this[fieldName]
 				}
-			}else if(isDTO(field.type)){
+			}
+			else if(isDTO(field.type)){
 				jsonObj[fieldName] = this[fieldName].toJSON()
-			}else{
+			}
+			else{
 				jsonObj[fieldName] = this[fieldName]
 			}
 		})

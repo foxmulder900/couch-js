@@ -1,11 +1,9 @@
 const BaseDto = require('../src/base_dto')
 
-
 class TestNestedDto extends BaseDto{
 	static databaseName = 'test_database'
 	static fields = ['message']
 }
-
 
 class TestDto extends BaseDto{
 	static databaseName(config){
@@ -25,7 +23,6 @@ class TestDto extends BaseDto{
 		{name: 'nested_dto_dictionary', type: Object, subType: TestNestedDto}
 	]
 }
-
 
 describe('BaseDto', () => {
 	describe('lifecycle', () => {

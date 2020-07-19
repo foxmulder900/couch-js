@@ -39,7 +39,8 @@ class DatabaseAPI{
 					keys: ids
 				})
 			})
-		}else{
+		}
+		else{
 			promise = fetch(url.toString())
 		}
 

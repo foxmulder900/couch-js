@@ -10,7 +10,6 @@ class TestDTO2 extends BaseDTO{
 }
 class TestDTO3 extends BaseDTO{
 	static databaseName = 'test_database_3'
-
 }
 
 describe('Client', () => {
