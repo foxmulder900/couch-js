@@ -45,6 +45,9 @@ class BaseDTO{
 				if(name === '_fields'){
 					throw new Error(`Unable to set set value, "_fields" is a reserved property used by couch-js.`)
 				}
+				if(!target._fields.hasOwnProperty(name)){
+					throw new Error(`Unable to set value, object does not have field with name: ${name}`)
+				}
 
 				if(value === undefined || value === null){
 					// TODO: Throw an error if value is required
@@ -53,22 +56,32 @@ class BaseDTO{
 					return true
 				}
 
-				if(!target._fields.hasOwnProperty(name)){
-					throw new Error(`Cannot set "${name}", field not present on DTO.`)
-				}
-				let fieldType = target._fields[name].type
+				let field = target._fields[name]
+				let fieldType = field.type
 
 				if(fieldType === Array && !Array.isArray(value)){
 					throw new Error('Expected Array type!')
 				}
-
-				if(isPrimitive(fieldType)){
+				else if(fieldType === FunctionSource){
+					target[name] = new FunctionSource(value)
+					return true
+				}
+				else if(field.type === Object && field.subType === FunctionSource){
+					let obj = Object(value)
+					Object.keys(obj).map(key => {
+						obj[key] = new FunctionSource(obj[key])
+					});
+					target[name] = obj
+					return true
+				}
+				else if(isPrimitive(fieldType)){
 					target[name] = fieldType(value)
 					return true
 				}
-
-				target[name] = value
-				return true
+				else{
+					target[name] = value
+					return true
+				}
 			},
 
 			get(target, name){
@@ -79,6 +92,18 @@ class BaseDTO{
 						if(value){
 							return target[name].valueOf()
 						}
+						return value ? value.valueOf() : value
+					}
+					else if(field.type === FunctionSource){
+						let value = target[name]
+						return value ? value.getSource() : value
+					}
+					else if(field.type === Object && field.subType === FunctionSource){
+						let obj = Object(target[name])
+						Object.keys(obj).map(key => {
+							obj[key] = obj[key].getSource()
+						});
+						return obj
 					}
 				}
 
@@ -159,6 +184,28 @@ class BaseDTO{
 	}
 }
 
+class FunctionSource {
+	constructor(function_definition){
+		this.source = function_definition.toString()
+	}
+
+	toFunction(){
+		let body_start = this.source.indexOf('{'),
+			body_end = this.source.lastIndexOf('}'),
+			body = this.source.substring(body_start+1, body_end),
+			declaration = this.source.substring(0, body_start),
+			parameter_start = declaration.indexOf('('),
+			parameter_end = declaration.lastIndexOf(')'),
+			parameters = declaration.substring(parameter_start+1, parameter_end).split(',')
+
+		return Function.apply(this, [...parameters, body]);
+	}
+
+	getSource(){
+		return this.source
+	}
+}
+
 function isDTO(cls){
 	return Boolean(cls.prototype instanceof BaseDTO)
 }
@@ -167,4 +214,7 @@ function isPrimitive(cls){
 	return Boolean(cls === Boolean || cls === Number || cls === String || cls === Object)
 }
 
-module.exports = BaseDTO
+module.exports = {
+	BaseDTO,
+	FunctionSource
+}

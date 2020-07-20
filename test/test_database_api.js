@@ -1,5 +1,5 @@
 const DatabaseAPI = require('../src/database_api')
-const BaseDTO = require('../src/base_dto')
+const {BaseDTO} = require('../src/base_dto')
 
 class TestDTO extends BaseDTO{
 	static databaseName = 'test_database'

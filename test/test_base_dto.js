@@ -1,11 +1,11 @@
-const BaseDto = require('../src/base_dto')
+const {BaseDTO} = require('../src/base_dto')
 
-class TestNestedDto extends BaseDto{
+class TestNestedDTO extends BaseDTO{
 	static databaseName = 'test_database'
 	static fields = ['message']
 }
 
-class TestDto extends BaseDto{
+class TestDTO extends BaseDTO{
 	static databaseName(config){
 		return `test_database_${config.value}`
 	}
@@ -18,13 +18,13 @@ class TestDto extends BaseDto{
 		{name: 'boolean_value_false', type: Boolean},
 		{name: 'typed_number', type: Number},
 		{name: 'typed_number_float', type: Number},
-		{name: 'nested_dto', type: TestNestedDto},
-		{name: 'nested_dto_array', type: Array, subType: TestNestedDto},
-		{name: 'nested_dto_dictionary', type: Object, subType: TestNestedDto}
+		{name: 'nested_dto', type: TestNestedDTO},
+		{name: 'nested_dto_array', type: Array, subType: TestNestedDTO},
+		{name: 'nested_dto_dictionary', type: Object, subType: TestNestedDTO}
 	]
 }
 
-describe('BaseDto', () => {
+describe('BaseDTO', () => {
 	describe('lifecycle', () => {
 		let dto
 		let _id = 'test-id'
@@ -40,7 +40,7 @@ describe('BaseDto', () => {
 		let nested_dto_dictionary = {'three': {message: 'three'}, 'four': {message: 'four'}}
 
 		it('should be built from a JavaScript Object', () => {
-			dto = new TestDto({_id,
+			dto = new TestDTO({_id,
 				_rev,
 				boolean_value_true,
 				boolean_value_false,
@@ -72,20 +72,20 @@ describe('BaseDto', () => {
 			expect(typeof dto.float_as_string).toEqual('string')
 			expect(dto.float_as_string).toEqual('5.3')
 
-			expect(dto.nested_dto).toEqual(jasmine.any(TestNestedDto))
+			expect(dto.nested_dto).toEqual(jasmine.any(TestNestedDTO))
 			expect(dto.nested_dto.message).toEqual(nested_dto.message)
-			expect(dto.nested_dto_array[0]).toEqual(jasmine.any(TestNestedDto))
+			expect(dto.nested_dto_array[0]).toEqual(jasmine.any(TestNestedDTO))
 			expect(dto.nested_dto_array[0].message).toEqual(nested_dto_array[0].message)
-			expect(dto.nested_dto_array[1]).toEqual(jasmine.any(TestNestedDto))
+			expect(dto.nested_dto_array[1]).toEqual(jasmine.any(TestNestedDTO))
 			expect(dto.nested_dto_array[1].message).toEqual(nested_dto_array[1].message)
-			expect(dto.nested_dto_dictionary['three']).toEqual(jasmine.any(TestNestedDto))
+			expect(dto.nested_dto_dictionary['three']).toEqual(jasmine.any(TestNestedDTO))
 			expect(dto.nested_dto_dictionary['three'].message).toEqual(nested_dto_dictionary['three'].message)
 		})
 
 		it('should gracefully handle JSON with missing fields', () => {
-			let dto_with_defaults = new TestDto({_id, _rev})
+			let dto_with_defaults = new TestDTO({_id, _rev})
 
-			expect(dto_with_defaults.nested_dto).toEqual(jasmine.any(TestNestedDto))
+			expect(dto_with_defaults.nested_dto).toEqual(jasmine.any(TestNestedDTO))
 			expect(dto_with_defaults.nested_dto_array).toEqual([])
 			expect(dto_with_defaults.nested_dto_dictionary).toEqual({})
 		})
@@ -109,10 +109,10 @@ describe('BaseDto', () => {
 
 		describe('databaseName', () => {
 			it('should support a string value', () => {
-				expect(TestNestedDto.getDatabaseName()).toEqual('test_database')
+				expect(TestNestedDTO.getDatabaseName()).toEqual('test_database')
 			})
 			it('should support a function', () => {
-				expect(TestDto.getDatabaseName({value: 'foo'})).toEqual('test_database_foo')
+				expect(TestDTO.getDatabaseName({value: 'foo'})).toEqual('test_database_foo')
 			})
 		})
 	})
