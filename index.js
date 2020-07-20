@@ -5,5 +5,7 @@ const DatabaseAPI = require('./src/database_api')
 module.exports = {
 	BaseDTO,
 	Client,
-	DatabaseAPI
+	DatabaseAPI,
+	DesignDocDTO,
+	FunctionSource,
 }
