@@ -1,8 +1,6 @@
 const {BaseDTO, FunctionSource} = require('../src/base_dto')
 
-
 describe('BaseDTO', () => {
-
 	class TestNestedDTO extends BaseDTO{
 		static databaseName = 'test_database'
 		static fields = ['message']
@@ -26,7 +24,6 @@ describe('BaseDTO', () => {
 			{name: 'nested_dto_dictionary', type: Object, subType: TestNestedDTO}
 		]
 	}
-
 
 	describe('lifecycle', () => {
 		let dto
@@ -122,9 +119,10 @@ describe('BaseDTO', () => {
 })
 
 describe('FunctionSource', () => {
-
-	function testFunction(a, b){return a+b}
-	let fnSource;
+	function testFunction(a, b){
+		return a+b
+	}
+	let fnSource
 
 	class DTOWithFunctionSource extends BaseDTO{
 		static fields = [{name: 'callback', type: FunctionSource}]

@@ -1,5 +1,5 @@
 class BaseDTO{
-	static databaseName = null;
+	static databaseName = null
 	static fields = []
 
 	static getDatabaseName(config){
@@ -70,7 +70,7 @@ class BaseDTO{
 					let obj = Object(value)
 					Object.keys(obj).map(key => {
 						obj[key] = new FunctionSource(obj[key])
-					});
+					})
 					target[name] = obj
 					return true
 				}
@@ -102,7 +102,7 @@ class BaseDTO{
 						let obj = Object(target[name])
 						Object.keys(obj).map(key => {
 							obj[key] = obj[key].getSource()
-						});
+						})
 						return obj
 					}
 				}
@@ -184,7 +184,7 @@ class BaseDTO{
 	}
 }
 
-class FunctionSource {
+class FunctionSource{
 	constructor(function_definition){
 		this.source = function_definition.toString()
 	}
@@ -198,7 +198,7 @@ class FunctionSource {
 			parameter_end = declaration.lastIndexOf(')'),
 			parameters = declaration.substring(parameter_start+1, parameter_end).split(',')
 
-		return Function.apply(this, [...parameters, body]);
+		return Function.apply(this, [...parameters, body])
 	}
 
 	getSource(){

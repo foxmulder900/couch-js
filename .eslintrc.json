@@ -11,12 +11,14 @@
         "camelcase": "off",
         "indent": ["error", "tab"],
         "keyword-spacing": ["error", {
-            "before": false,
-            "after": false,
             "overrides": {
-                "return": {
-                    "before": true,
-                    "after": true
+                "if": {
+                    "before": false,
+                    "after": false
+                },
+                "else": {
+                    "before": false,
+                    "after": false
                 }
             }
         }],
@@ -28,6 +30,7 @@
         "space-before-blocks": ["error", "never"],
         "space-before-function-paren": ["error", "never"],
         "space-infix-ops": "off",
-        "brace-style": ["error", "stroustrup"]
+        "brace-style": ["error", "stroustrup"],
+        "one-var": "off"
     }
 }
