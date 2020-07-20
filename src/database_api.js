@@ -126,6 +126,30 @@ class DatabaseAPI{
 				return response['docs'].map(doc => new this.dtoClass(doc))
 			})
 	}
+
+	createDesignDoc(dto){
+		// TODO: assert dto is DesignDocDTO
+		return fetch(`${this.baseUrl}/_design/${dto.name}`, {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(dto.toJSON())
+		})
+			.then(response => response.json())
+			.then(json => DatabaseAPI._checkJSON(json, dto))
+	}
+
+	// Private helper methods
+	static _checkJSON(json, dto){
+		if(!json['ok']){
+			console.warn('WARNING: JSON not OK!')
+			console.warn(json)
+		}
+		dto._id = json['id']
+		dto._rev = json['rev']
+		return dto._id
+	}
 }
 
 module.exports = DatabaseAPI
