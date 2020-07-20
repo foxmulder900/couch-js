@@ -119,9 +119,10 @@ describe('BaseDTO', () => {
 })
 
 describe('FunctionSource', () => {
-	function testFunction(a, b){
-		return a+b
-	}
+	/* eslint-disable brace-style */
+	function testFunction(a, b){ return a+b }
+	/* eslint-disable brace-style */
+
 	let fnSource
 
 	class DTOWithFunctionSource extends BaseDTO{
@@ -130,7 +131,7 @@ describe('FunctionSource', () => {
 
 	it('should accept a function as an argument and store it as a string', () => {
 		fnSource = new FunctionSource(testFunction)
-		expect(fnSource.source).toEqual('function testFunction(a, b){return a+b}')
+		expect(fnSource.source).toEqual('function testFunction(a, b){ return a+b }')
 	})
 
 	it('should be able to convert the source string back into a function', () => {
@@ -144,6 +145,6 @@ describe('FunctionSource', () => {
 
 		dto.callback = testFunction
 
-		expect(dto.toJSON()).toEqual({callback: 'function testFunction(a, b){return a+b}'})
+		expect(dto.toJSON()).toEqual({callback: 'function testFunction(a, b){ return a+b }'})
 	})
 })
