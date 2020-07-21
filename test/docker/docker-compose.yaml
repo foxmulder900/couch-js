@@ -7,3 +7,5 @@ services:
     environment:
       COUCHDB_USER: test_user
       COUCHDB_PASSWORD: test_password
+    volumes:
+    - ./local.ini:/opt/couchdb/etc/local.ini

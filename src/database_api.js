@@ -1,8 +1,9 @@
 class DatabaseAPI{
-	constructor(baseUrl, dtoClass, config){
+	constructor(session, dtoClass, config){
+		this.session = session
 		this.config = config || {}
 		this.dtoClass = dtoClass
-		this.baseUrl = `${baseUrl}/${dtoClass.getDatabaseName(this.config)}`
+		this.baseUrl = `${this.session.baseUrl}/${dtoClass.getDatabaseName(this.config)}`
 	}
 
 	// Database level methods
@@ -131,8 +132,9 @@ class DatabaseAPI{
 		// TODO: assert dto is DesignDocDTO
 		return fetch(`${this.baseUrl}/_design/${dto.name}`, {
 			method: 'PUT',
+			credentials: 'include',
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify(dto.toJSON())
 		})
@@ -145,6 +147,7 @@ class DatabaseAPI{
 		if(!json['ok']){
 			console.warn('WARNING: JSON not OK!')
 			console.warn(json)
+			console.trace()
 		}
 		dto._id = json['id']
 		dto._rev = json['rev']

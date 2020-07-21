@@ -1,4 +1,5 @@
 const DatabaseAPI = require('../src/database_api')
+const SessionAPI = require('../src/session_api')
 const {BaseDTO} = require('../src/base_dto')
 
 class TestDTO extends BaseDTO{
@@ -7,8 +8,10 @@ class TestDTO extends BaseDTO{
 }
 
 describe('DatabaseAPI', () => {
+	let session = new SessionAPI('http://localhost:5984')
+
 	describe('Database CRUD', () => {
-		let database = new DatabaseAPI('http://localhost:5984', TestDTO)
+		let database = new DatabaseAPI(session, TestDTO)
 		let documentIds
 
 		it('creates a new database', done => {
@@ -91,7 +94,7 @@ describe('DatabaseAPI', () => {
 	})
 
 	describe('Document CRUD', () => {
-		let database = new DatabaseAPI('http://localhost:5984', TestDTO)
+		let database = new DatabaseAPI(session, TestDTO)
 		let docId
 		let docRev
 		let testFieldValue = 'hello'
