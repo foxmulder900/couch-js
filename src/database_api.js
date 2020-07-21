@@ -113,16 +113,11 @@ class DatabaseAPI{
 
 	createDesignDoc(dto){
 		// TODO: assert dto is DesignDocDTO
-		return fetch(`${this.baseUrl}/_design/${dto.name}`, {
-			method: 'PUT',
-			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify(dto.toJSON())
-		})
-			.then(response => response.json())
-			.then(json => DatabaseAPI._checkJSON(json, dto))
+		let path = `${this.name}/_design/${dto.name}`
+		let headers = {'Content-Type': 'application/json'}
+		let body = JSON.stringify(dto.toJSON())
+		return this.session.makeRequest(path, 'PUT', headers, body)
+		.then(json => DatabaseAPI._checkJSON(json, dto))
 	}
 
 	// Private helper methods
