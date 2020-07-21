@@ -27,7 +27,7 @@ class SessionAPI{
 	authenticate(name, password){
 		let headers = {'Content-Type': 'application/json'}
 		let body = JSON.stringify({name, password})
-		return this.makeRequest('/_session', 'POST', headers, body, true)
+		return this.makeRequest('_session', 'POST', headers, body, true)
 		.then(response => {
 			if(!HTTP_ONLY){
 				this.cookie = response.headers.get('set-cookie')
@@ -38,7 +38,7 @@ class SessionAPI{
 	}
 
 	deauthenticate(){
-		return this.makeRequest('/_session', 'DELETE')
+		return this.makeRequest('_session', 'DELETE')
 		.then(response => {
 			if(response['ok']){
 				this.cookie = null
@@ -52,6 +52,7 @@ class SessionAPI{
 	makeRequest(path = '', method = 'GET', headers = {}, body = undefined, raw = false){
 		let url = this.baseUrl + path
 		let defaultHeaders = HTTP_ONLY ? {} : {'Cookie': this.cookie}
+		console.trace(`${method} : ${url}`)
 		return fetch(url, {
 			method,
 			credentials: 'include',
@@ -65,7 +66,7 @@ class SessionAPI{
 	}
 
 	_fetchInfo(){
-		return this.makeRequest('/_session')
+		return this.makeRequest('_session')
 		.then(json => json['userCtx'])
 	}
 

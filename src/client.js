@@ -4,7 +4,7 @@ const SessionAPI = require('./session_api')
 class Client{
 	constructor(host = 'localhost', port=5984, secure=false){
 		let protocol = secure ? 'https' : 'http'
-		this.baseUrl = `${protocol}://${host}:${port}`
+		this.baseUrl = `${protocol}://${host}:${port}/`
 		this._session = new SessionAPI(this.baseUrl)
 		this._databases = {}
 	}
@@ -16,7 +16,7 @@ class Client{
 	}
 
 	listDatabases(){
-		return this._session.makeRequest('/_all_dbs')
+		return this._session.makeRequest('_all_dbs')
 	}
 
 	login(userName, password){

@@ -3,54 +3,48 @@ class DatabaseAPI{
 		this.session = session
 		this.config = config || {}
 		this.dtoClass = dtoClass
-		this.baseUrl = `${this.session.baseUrl}/${dtoClass.getDatabaseName(this.config)}`
+		this.name = dtoClass.getDatabaseName(this.config)
 	}
 
 	// Database level methods
 	create(){
-		return fetch(this.baseUrl, {method: 'PUT'})
+		return this.session.makeRequest(this.name, 'PUT')
 	}
 
 	delete(){
-		return fetch(this.baseUrl, {method: 'DELETE'})
+		return this.session.makeRequest(this.name, 'DELETE')
 	}
 
 	exists(){
-		return fetch(this.baseUrl, {method: 'HEAD'}).then((response) => response.status === 200)
+		return this.session.makeRequest(this.name, 'HEAD', {}, undefined, true)
+		.then((response) => response.status === 200)
 	}
 
 	info(){
-		return fetch(this.baseUrl)
-			.then(response => response.json())
+		return this.session.makeRequest(this.name)
 	}
 
 	// Document level methods
 	allDocs(ids){
-		let url = new URL(`${this.baseUrl}/_all_docs`)
-		url.search = new URLSearchParams({include_docs: true}).toString()
+		let path = `${this.name}/_all_docs`
+		// let params = new URLSearchParams({ include_docs: true }).toString()
+		let params = 'include_docs=true'
 
 		let promise
 		if(ids){
-			promise = fetch(url.toString(), {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					keys: ids
-				})
-			})
+			let headers = {'Content-Type': 'application/json'}
+			let body = JSON.stringify({keys: ids})
+			promise = this.session.makeRequest(`${path}?${params}`, 'POST', headers, body)
 		}
 		else{
-			promise = fetch(url.toString())
+			promise = this.session.makeRequest(`${path}?${params}`)
 		}
 
-		return promise.then(response => response.json())
-			.then(json => {
-				return json['rows'].map(row => {
-					return new this.dtoClass(row['doc'])
-				})
+		return promise.then(json => {
+			return json['rows'].map(row => {
+				return new this.dtoClass(row['doc'])
 			})
+		})
 	}
 
 	docCount(){
@@ -66,66 +60,55 @@ class DatabaseAPI{
 		}
 		let jsonObj = dto.toJSON()
 
-		return fetch(this.baseUrl, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify(jsonObj)
+		let headers = {'Content-Type': 'application/json'}
+		let body = JSON.stringify(jsonObj)
+		return this.session.makeRequest(this.name, 'POST', headers, body)
+		.then(json => {
+			if(!json['ok']){
+				console.warn('WARNING: JSON not OK!')
+				console.warn(json)
+			}
+			dto._id = json['id']
+			dto._rev = json['rev']
+			return dto._id
 		})
-			.then(response => response.json())
-			.then(json => {
-				if(!json['ok']){
-					console.warn('WARNING: JSON not OK!')
-					console.warn(json)
-				}
-				dto._id = json['id']
-				dto._rev = json['rev']
-				return dto._id
-			})
 	}
 
 	readDoc(documentId){
-		return fetch(`${this.baseUrl}/${documentId}`)
-			.then(response => response.json())
-			.then(json => new this.dtoClass(json))
+		let path = `${this.name}/${documentId}`
+		return this.session.makeRequest(path)
+		.then(json => new this.dtoClass(json))
 	}
 
 	deleteDoc(dto){
-		let url = new URL(`${this.baseUrl}/${dto._id}`)
-		url.search = new URLSearchParams({rev: dto._rev}).toString()
-		return fetch(url.toString(), {method: 'DELETE'})
+		let path = `${this.name}/${dto._id}`
+		let params = `rev=${dto._rev}`
+		return this.session.makeRequest(`${path}?${params}`, 'DELETE')
 	}
 
 	docExists(documentId){
-		return fetch(`${this.baseUrl}/${documentId}`, {method: 'HEAD'})
-			.then((response) => response.status === 200)
+		let path = `${this.name}/${documentId}`
+		return this.session.makeRequest(path, 'HEAD', {}, undefined, true)
+		.then((response) => response.status === 200)
 	}
 
 	updateDoc(dto){
-		let jsonObj = dto.toJSON()
-		return fetch(`${this.baseUrl}/${dto._id}`, {
-			method: 'PUT',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify(jsonObj)
-		})
-			.then(response => response.json())
-			.then(json => dto._rev = json['rev'])
+		let path = `${this.name}/${dto._id}`
+		let headers = {'Content-Type': 'application/json'}
+		let body = JSON.stringify(dto.toJSON())
+
+		return this.session.makeRequest(path, 'PUT', headers, body)
+		.then(json => dto._rev = json['rev'])
 	}
 
 	queryDocs(queryObject){
-		return fetch(`${this.baseUrl}/_find`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({selector: queryObject})
-		}).then(response => response.json())
-			.then(response => {
-				return response['docs'].map(doc => new this.dtoClass(doc))
-			})
+		let path = `${this.name}/_find`
+		let headers = {'Content-Type': 'application/json'}
+		let body = JSON.stringify({selector: queryObject})
+		return this.session.makeRequest(path, 'POST', headers, body)
+		.then(response => {
+			return response['docs'].map(doc => new this.dtoClass(doc))
+		})
 	}
 
 	createDesignDoc(dto){

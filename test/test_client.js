@@ -17,13 +17,13 @@ describe('Client', () => {
 		it('has sane defaults', () => {
 			let client = new Client()
 
-			expect(client.baseUrl).toBe('http://localhost:5984')
+			expect(client.baseUrl).toBe('http://localhost:5984/')
 		})
 
 		it('builds base_url from input parameters', () => {
 			let client = new Client('www.example.com', 80, true)
 
-			expect(client.baseUrl).toBe('https://www.example.com:80')
+			expect(client.baseUrl).toBe('https://www.example.com:80/')
 		})
 	})
 
