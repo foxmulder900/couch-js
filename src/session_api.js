@@ -52,7 +52,7 @@ class SessionAPI{
 	makeRequest(path = '', method = 'GET', headers = {}, body = undefined, raw = false){
 		let url = this.baseUrl + path
 		let defaultHeaders = HTTP_ONLY ? {} : {'Cookie': this.cookie}
-		console.trace(`${method} : ${url}`)
+		// console.debug(`${method} : ${url}`)
 		return fetch(url, {
 			method,
 			credentials: 'include',
@@ -78,7 +78,6 @@ class SessionAPI{
 	static _checkJSON(json){
 		//TODO: this should probably be handled by looking at HTTP codes instead
 		if(json['ok']){
-			console.info(json)
 			return true
 		}
 		else{

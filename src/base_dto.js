@@ -6,12 +6,8 @@ class BaseDTO{
 		if(!this.databaseName){
 			throw new Error('databaseName not defined!')
 		}
-		if(typeof this.databaseName === 'function'){
-			return this.databaseName(config)
-		}
-		else{
-			return this.databaseName
-		}
+		let isFunction = typeof this.databaseName === 'function'
+		return isFunction ? this.databaseName(config) : this.databaseName
 	}
 
 	_getFields(){
@@ -35,19 +31,29 @@ class BaseDTO{
 		})
 	}
 
-	constructor(jsonObj){
-		this._initFields()
+	_buildProxy(){
+		function getField(target, name){
+			if(name === '_fields'){
+				throw new Error(`Unable to set set value, "_fields" is a reserved property used by couch-js.`)
+			}
+			if(!target._fields.hasOwnProperty(name)){
+				throw new Error(`Unable to set value, object does not have field with name: ${name}`)
+			}
+			return target._fields[name]
+		}
 
-		let proxy = new Proxy(this, {
+		function validateValueType(field, value){
+			let fieldType = field.type
+			if(fieldType === Array && !Array.isArray(value)){
+				throw new Error(`Expected Array for field ${name} got ${typeof value}`)
+			}
+		}
+
+		return new Proxy(this, {
 			// Intercepts set/get and handles type-checking
 			// Only handles conversion of primitive types
 			set(target, name, value){
-				if(name === '_fields'){
-					throw new Error(`Unable to set set value, "_fields" is a reserved property used by couch-js.`)
-				}
-				if(!target._fields.hasOwnProperty(name)){
-					throw new Error(`Unable to set value, object does not have field with name: ${name}`)
-				}
+				let field = getField(target, name)
 
 				if(value === undefined || value === null){
 					// TODO: Throw an error if value is required
@@ -56,13 +62,11 @@ class BaseDTO{
 					return true
 				}
 
-				let field = target._fields[name]
-				let fieldType = field.type
+				validateValueType(field, value)
 
-				if(fieldType === Array && !Array.isArray(value)){
-					throw new Error('Expected Array type!')
-				}
-				else if(fieldType === FunctionSource){
+				// TODO probably move all non-primitive casting to fromJSON
+				// So move FunctionSource, but leave the isPrimitive block
+				if(field.type === FunctionSource){
 					target[name] = new FunctionSource(value)
 					return true
 				}
@@ -74,8 +78,8 @@ class BaseDTO{
 					target[name] = obj
 					return true
 				}
-				else if(isPrimitive(fieldType)){
-					target[name] = fieldType(value)
+				else if(isPrimitive(field.type)){
+					target[name] = field.type(value)
 					return true
 				}
 				else{
@@ -110,41 +114,34 @@ class BaseDTO{
 				return target[name]
 			}
 		})
+	}
 
+	constructor(jsonObj){
+		this._initFields()
+		let proxy =this._buildProxy()
 		jsonObj && proxy.fromJSON(jsonObj)
-
 		return proxy
 	}
 
 	fromJSON(jsonObj){
 		Object.keys(this._fields).forEach(fieldName => {
 			let field = this._fields[fieldName]
+			let value = jsonObj[fieldName]
+
 			if(field.type === Array){
-				if(jsonObj[fieldName]){
-					let subType = field.subType
-					this[fieldName] = jsonObj[fieldName].map(subObject => new subType(subObject))
-				}
-				else{
-					this[fieldName] = []
-				}
+				this[fieldName] = value ? value.map(subObject => new field.subType(subObject)) : []
 			}
 			else if(field.type === Object){
-				if(jsonObj[fieldName]){
-					let dictionary = {}
-					let subType = field.subType
-					Object.entries(jsonObj[fieldName])
-						.forEach(entry => dictionary[entry[0]] = new subType(entry[1]))
-					this[fieldName] = dictionary
-				}
-				else{
-					this[fieldName] = {}
-				}
+				this[fieldName] = value ?
+					Object.assign(
+						{}, ...Object.keys(value).map(key => ({[key]: new field.subType(value[key])}))
+					) : {}
 			}
 			else if(isDTO(field.type)){
-				this[fieldName] = new field.type(jsonObj[fieldName])
+				this[fieldName] = new field.type(value)
 			}
 			else{
-				this[fieldName] = jsonObj[fieldName]
+				this[fieldName] = value
 			}
 		})
 	}
@@ -153,31 +150,22 @@ class BaseDTO{
 		let jsonObj = {}
 		Object.keys(this._fields).forEach(fieldName => {
 			let field = this._fields[fieldName]
+			let value = this[fieldName]
+
 			if(field.type === Array){
-				if(isDTO(field.subType)){
-					jsonObj[fieldName] = this[fieldName].map(subObject => subObject.toJSON())
-				}
-				else{
-					jsonObj[fieldName] = this[fieldName]
-				}
+				jsonObj[fieldName] = isDTO(field.subType) ? value.map(subObject => subObject.toJSON()) : value
 			}
 			else if(field.type === Object){
-				// TODO: make this more robust, it will only convert shallow instances of DTOs back to json
-				if(isDTO(field.subType)){
-					let dictionary = {}
-					Object.entries(this[fieldName])
-						.forEach(entry => dictionary[entry[0]] = entry[1].toJSON())
-					jsonObj[fieldName] = dictionary
-				}
-				else{
-					jsonObj[fieldName] = this[fieldName]
-				}
+				jsonObj[fieldName] = isDTO(field.subType) ?
+					Object.assign(
+						{}, ...Object.keys(value).map(key => ({[key]: value[key].toJSON()}))
+					) : value
 			}
 			else if(isDTO(field.type)){
-				jsonObj[fieldName] = this[fieldName].toJSON()
+				jsonObj[fieldName] = value.toJSON()
 			}
 			else{
-				jsonObj[fieldName] = this[fieldName]
+				jsonObj[fieldName] = value
 			}
 		})
 		return jsonObj

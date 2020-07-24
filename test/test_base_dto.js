@@ -116,6 +116,22 @@ describe('BaseDTO', () => {
 			})
 		})
 	})
+
+	describe('errors', () => {
+		it('should not allow _fields to be set', () => {
+			let dto = new TestDTO()
+			let expected_error =  new Error(`Unable to set set value, "_fields" is a reserved property used by couch-js.`)
+
+			expect(() => {dto._fields = 'test'}).toThrow(expected_error)
+		})
+
+		it('should not allow _fields to be set', () => {
+			let dto = new TestDTO()
+			let expected_error = new Error(`Unable to set value, object does not have field with name: fake_field`)
+
+			expect(() => {dto.fake_field = 'test'}).toThrow(expected_error)
+		})
+	})
 })
 
 describe('FunctionSource', () => {
