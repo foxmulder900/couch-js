@@ -51,7 +51,7 @@ class BaseDTO{
 
 		return new Proxy(this, {
 			// Intercepts set/get and handles type-checking
-			// Only handles conversion of primitive types
+			// Only handles conversion of primitive types and functions
 			set(target, name, value){
 				let field = getField(target, name)
 
@@ -64,8 +64,6 @@ class BaseDTO{
 
 				validateValueType(field, value)
 
-				// TODO probably move all non-primitive casting to fromJSON
-				// So move FunctionSource, but leave the isPrimitive block
 				if(field.type === FunctionSource){
 					target[name] = new FunctionSource(value)
 					return true
