@@ -132,8 +132,8 @@ class BaseDTO{
 				this[fieldName] = value ? value.map(subObject => new field.subType(subObject)) : []
 			}
 			else if(field.type === Object){
-				this[fieldName] = value ?
-					Object.assign(
+				this[fieldName] = value
+					? Object.assign(
 						{}, ...Object.keys(value).map(key => ({[key]: new field.subType(value[key])}))
 					) : {}
 			}
@@ -156,8 +156,8 @@ class BaseDTO{
 				jsonObj[fieldName] = isDTO(field.subType) ? value.map(subObject => subObject.toJSON()) : value
 			}
 			else if(field.type === Object){
-				jsonObj[fieldName] = isDTO(field.subType) ?
-					Object.assign(
+				jsonObj[fieldName] = isDTO(field.subType)
+					? Object.assign(
 						{}, ...Object.keys(value).map(key => ({[key]: value[key].toJSON()}))
 					) : value
 			}

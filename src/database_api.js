@@ -17,7 +17,7 @@ class DatabaseAPI{
 
 	exists(){
 		return this.session.makeRequest(this.name, 'HEAD', {}, undefined, true)
-		.then((response) => response.status === 200)
+			.then((response) => response.status === 200)
 	}
 
 	info(){
@@ -63,21 +63,21 @@ class DatabaseAPI{
 		let headers = {'Content-Type': 'application/json'}
 		let body = JSON.stringify(jsonObj)
 		return this.session.makeRequest(this.name, 'POST', headers, body)
-		.then(json => {
-			if(!json['ok']){
-				console.warn('WARNING: JSON not OK!')
-				console.warn(json)
-			}
-			dto._id = json['id']
-			dto._rev = json['rev']
-			return dto._id
-		})
+			.then(json => {
+				if(!json['ok']){
+					console.warn('WARNING: JSON not OK!')
+					console.warn(json)
+				}
+				dto._id = json['id']
+				dto._rev = json['rev']
+				return dto._id
+			})
 	}
 
 	readDoc(documentId){
 		let path = `${this.name}/${documentId}`
 		return this.session.makeRequest(path)
-		.then(json => new this.dtoClass(json))
+			.then(json => new this.dtoClass(json))
 	}
 
 	deleteDoc(dto){
@@ -89,7 +89,7 @@ class DatabaseAPI{
 	docExists(documentId){
 		let path = `${this.name}/${documentId}`
 		return this.session.makeRequest(path, 'HEAD', {}, undefined, true)
-		.then((response) => response.status === 200)
+			.then((response) => response.status === 200)
 	}
 
 	updateDoc(dto){
@@ -98,7 +98,7 @@ class DatabaseAPI{
 		let body = JSON.stringify(dto.toJSON())
 
 		return this.session.makeRequest(path, 'PUT', headers, body)
-		.then(json => dto._rev = json['rev'])
+			.then(json => dto._rev = json['rev'])
 	}
 
 	queryDocs(queryObject){
@@ -106,9 +106,9 @@ class DatabaseAPI{
 		let headers = {'Content-Type': 'application/json'}
 		let body = JSON.stringify({selector: queryObject})
 		return this.session.makeRequest(path, 'POST', headers, body)
-		.then(response => {
-			return response['docs'].map(doc => new this.dtoClass(doc))
-		})
+			.then(response => {
+				return response['docs'].map(doc => new this.dtoClass(doc))
+			})
 	}
 
 	createDesignDoc(dto){
@@ -117,7 +117,7 @@ class DatabaseAPI{
 		let headers = {'Content-Type': 'application/json'}
 		let body = JSON.stringify(dto.toJSON())
 		return this.session.makeRequest(path, 'PUT', headers, body)
-		.then(json => DatabaseAPI._checkJSON(json, dto))
+			.then(json => DatabaseAPI._checkJSON(json, dto))
 	}
 
 	// Private helper methods

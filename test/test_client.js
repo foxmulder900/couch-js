@@ -17,7 +17,7 @@ describe('Client', () => {
 		it('has sane defaults', () => {
 			let client = new Client()
 
-			expect(client.baseUrl).toBe('http://localhost:5984/')
+			expect(client.baseUrl).toBe('http://couchdb:5984/')
 		})
 
 		it('builds base_url from input parameters', () => {
@@ -41,6 +41,10 @@ describe('Client', () => {
 	describe('listDatabases', () => {
 		let client = new Client()
 
+		beforeAll(done => {
+			client.login('test_user', 'test_password').then(done)
+		})
+
 		it('should return a list of all databases', done => {
 			Promise.all([
 				client.database(TestDTO1).create(),
@@ -59,6 +63,7 @@ describe('Client', () => {
 			client.database(TestDTO1).delete()
 			client.database(TestDTO2).delete()
 			client.database(TestDTO3).delete()
+			client.logout()
 		})
 	})
 })

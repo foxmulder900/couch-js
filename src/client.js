@@ -2,7 +2,7 @@ const DatabaseAPI = require('./database_api')
 const SessionAPI = require('./session_api')
 
 class Client{
-	constructor(host = 'localhost', port=5984, secure=false){
+	constructor(host = 'couchdb', port=5984, secure=false){
 		let protocol = secure ? 'https' : 'http'
 		this.baseUrl = `${protocol}://${host}:${port}/`
 		this._session = new SessionAPI(this.baseUrl)

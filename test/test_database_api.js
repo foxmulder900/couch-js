@@ -2,14 +2,13 @@ const DatabaseAPI = require('../src/database_api')
 const SessionAPI = require('../src/session_api')
 const {BaseDTO} = require('../src/base_dto')
 
-
 describe('DatabaseAPI', () => {
 	class TestDTO extends BaseDTO{
 		static databaseName = 'test_database'
 		static fields = ['_id', '_rev', 'testField']
 	}
 
-	let session = new SessionAPI('http://localhost:5984/')
+	let session = new SessionAPI('http://couchdb:5984/')
 
 	describe('Database CRUD', () => {
 		let database = new DatabaseAPI(session, TestDTO)

@@ -28,25 +28,25 @@ class SessionAPI{
 		let headers = {'Content-Type': 'application/json'}
 		let body = JSON.stringify({name, password})
 		return this.makeRequest('_session', 'POST', headers, body, true)
-		.then(response => {
-			if(!HTTP_ONLY){
-				this.cookie = response.headers.get('set-cookie')
-			}
-			return response.json()
-		})
-		.then(SessionAPI._checkJSON)
+			.then(response => {
+				if(!HTTP_ONLY){
+					this.cookie = response.headers.get('set-cookie')
+				}
+				return response.json()
+			})
+			.then(SessionAPI._checkJSON)
 	}
 
 	deauthenticate(){
 		return this.makeRequest('_session', 'DELETE')
-		.then(response => {
-			if(response['ok']){
-				this.cookie = null
-				this._userInfo = {}
-				return true
-			}
-			return false
-		})
+			.then(response => {
+				if(response['ok']){
+					this.cookie = null
+					this._userInfo = {}
+					return true
+				}
+				return false
+			})
 	}
 
 	makeRequest(path = '', method = 'GET', headers = {}, body = undefined, raw = false){
@@ -57,7 +57,7 @@ class SessionAPI{
 			method,
 			credentials: 'include',
 			headers: Object.assign(defaultHeaders, headers),
-			body,
+			body
 		}).then(response => raw ? response : response.json())
 	}
 
@@ -67,7 +67,7 @@ class SessionAPI{
 
 	_fetchInfo(){
 		return this.makeRequest('_session')
-		.then(json => json['userCtx'])
+			.then(json => json['userCtx'])
 	}
 
 	getUserInfo(){
@@ -76,7 +76,7 @@ class SessionAPI{
 
 	// Private helper methods
 	static _checkJSON(json){
-		//TODO: this should probably be handled by looking at HTTP codes instead
+		// TODO: this should probably be handled by looking at HTTP codes instead
 		if(json['ok']){
 			return true
 		}
