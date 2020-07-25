@@ -1,6 +1,9 @@
 services:
   - docker
 
+env:
+  - DOCKER_COMPOSE_VERSION=3
+
 before_script:
 - docker-compose up couchdb -d
 - while [ $? -ne 0 ]; do sleep 1 && curl -v http://localhost:5984; done
