@@ -1,19 +1,18 @@
 const DatabaseAPI = require('../src/database_api')
-const BaseDTO = require('../src/base_dto')
-
-class TestDTO extends BaseDTO{
-	static databaseName(){
-		return'test_database'
-	}
-
-	static getFields(){
-		return['_id', '_rev', 'testField']
-	}
-}
+const SessionAPI = require('../src/session_api')
+const {BaseDTO} = require('../src/base_dto')
 
 describe('DatabaseAPI', () => {
+	class TestDTO extends BaseDTO{
+		static databaseName = 'test_database'
+		static fields = ['_id', '_rev', 'testField']
+	}
+
+	let session = new SessionAPI('http://couchdb:5984/')
+
 	describe('Database CRUD', () => {
-		let database = new DatabaseAPI('http://localhost:5984', TestDTO)
+		let database = new DatabaseAPI(session, TestDTO)
+		database.delete()
 		let documentIds
 
 		it('creates a new database', done => {
@@ -24,7 +23,7 @@ describe('DatabaseAPI', () => {
 		it('retrieves database info', done => {
 			database.info()
 				.then(response => {
-					expect(response['db_name']).toEqual(database.dtoClass.databaseName())
+					expect(response['db_name']).toEqual(database.dtoClass.getDatabaseName())
 					expect(response['doc_count']).toEqual(0)
 					done()
 				})
@@ -96,7 +95,7 @@ describe('DatabaseAPI', () => {
 	})
 
 	describe('Document CRUD', () => {
-		let database = new DatabaseAPI('http://localhost:5984', TestDTO)
+		let database = new DatabaseAPI(session, TestDTO)
 		let docId
 		let docRev
 		let testFieldValue = 'hello'

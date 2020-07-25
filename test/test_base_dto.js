@@ -1,8 +1,16 @@
-const BaseDto = require('../src/base_dto')
+const {BaseDTO, FunctionSource} = require('../src/base_dto')
 
-class TestDto extends BaseDto{
-	static getFields(){
-		return[
+describe('BaseDTO', () => {
+	class TestNestedDTO extends BaseDTO{
+		static databaseName = 'test_database'
+		static fields = ['message']
+	}
+
+	class TestDTO extends BaseDTO{
+		static databaseName(config){
+			return `test_database_${config.value}`
+		}
+		static fields = [
 			'_id',
 			'_rev',
 			'number_as_string',
@@ -11,20 +19,12 @@ class TestDto extends BaseDto{
 			{name: 'boolean_value_false', type: Boolean},
 			{name: 'typed_number', type: Number},
 			{name: 'typed_number_float', type: Number},
-			{name: 'nested_dto', type: TestNestedDto},
-			{name: 'nested_dto_array', type: Array, subType: TestNestedDto},
-			{name: 'nested_dto_dictionary', type: Object, subType: TestNestedDto}
+			{name: 'nested_dto', type: TestNestedDTO},
+			{name: 'nested_dto_array', type: Array, subType: TestNestedDTO},
+			{name: 'nested_dto_dictionary', type: Object, subType: TestNestedDTO}
 		]
 	}
-}
 
-class TestNestedDto extends BaseDto{
-	static getFields(){
-		return['message']
-	}
-}
-
-describe('BaseDto', () => {
 	describe('lifecycle', () => {
 		let dto
 		let _id = 'test-id'
@@ -40,7 +40,7 @@ describe('BaseDto', () => {
 		let nested_dto_dictionary = {'three': {message: 'three'}, 'four': {message: 'four'}}
 
 		it('should be built from a JavaScript Object', () => {
-			dto = new TestDto({_id,
+			dto = new TestDTO({_id,
 				_rev,
 				boolean_value_true,
 				boolean_value_false,
@@ -72,20 +72,20 @@ describe('BaseDto', () => {
 			expect(typeof dto.float_as_string).toEqual('string')
 			expect(dto.float_as_string).toEqual('5.3')
 
-			expect(dto.nested_dto).toEqual(jasmine.any(TestNestedDto))
+			expect(dto.nested_dto).toEqual(jasmine.any(TestNestedDTO))
 			expect(dto.nested_dto.message).toEqual(nested_dto.message)
-			expect(dto.nested_dto_array[0]).toEqual(jasmine.any(TestNestedDto))
+			expect(dto.nested_dto_array[0]).toEqual(jasmine.any(TestNestedDTO))
 			expect(dto.nested_dto_array[0].message).toEqual(nested_dto_array[0].message)
-			expect(dto.nested_dto_array[1]).toEqual(jasmine.any(TestNestedDto))
+			expect(dto.nested_dto_array[1]).toEqual(jasmine.any(TestNestedDTO))
 			expect(dto.nested_dto_array[1].message).toEqual(nested_dto_array[1].message)
-			expect(dto.nested_dto_dictionary['three']).toEqual(jasmine.any(TestNestedDto))
+			expect(dto.nested_dto_dictionary['three']).toEqual(jasmine.any(TestNestedDTO))
 			expect(dto.nested_dto_dictionary['three'].message).toEqual(nested_dto_dictionary['three'].message)
 		})
 
 		it('should gracefully handle JSON with missing fields', () => {
-			let dto_with_defaults = new TestDto({_id, _rev})
+			let dto_with_defaults = new TestDTO({_id, _rev})
 
-			expect(dto_with_defaults.nested_dto).toEqual(jasmine.any(TestNestedDto))
+			expect(dto_with_defaults.nested_dto).toEqual(jasmine.any(TestNestedDTO))
 			expect(dto_with_defaults.nested_dto_array).toEqual([])
 			expect(dto_with_defaults.nested_dto_dictionary).toEqual({})
 		})
@@ -106,5 +106,65 @@ describe('BaseDto', () => {
 			expect(object['nested_dto_array']).toEqual(nested_dto_array)
 			expect(object['nested_dto_dictionary']).toEqual(nested_dto_dictionary)
 		})
+
+		describe('databaseName', () => {
+			it('should support a string value', () => {
+				expect(TestNestedDTO.getDatabaseName()).toEqual('test_database')
+			})
+			it('should support a function', () => {
+				expect(TestDTO.getDatabaseName({value: 'foo'})).toEqual('test_database_foo')
+			})
+		})
+	})
+
+	describe('errors', () => {
+		it('should not allow _fields to be set', () => {
+			let dto = new TestDTO()
+			let expected_error = new Error(`Unable to set set value, "_fields" is a reserved property used by couch-js.`)
+
+			expect(() => {
+				dto._fields = 'test'
+			}).toThrow(expected_error)
+		})
+
+		it('should not allow _fields to be set', () => {
+			let dto = new TestDTO()
+			let expected_error = new Error(`Unable to set value, object does not have field with name: fake_field`)
+
+			expect(() => {
+				dto.fake_field = 'test'
+			}).toThrow(expected_error)
+		})
+	})
+})
+
+describe('FunctionSource', () => {
+	/* eslint-disable brace-style */
+	function testFunction(a, b){ return a+b }
+	/* eslint-disable brace-style */
+
+	let fnSource
+
+	class DTOWithFunctionSource extends BaseDTO{
+		static fields = [{name: 'callback', type: FunctionSource}]
+	}
+
+	it('should accept a function as an argument and store it as a string', () => {
+		fnSource = new FunctionSource(testFunction)
+		expect(fnSource.source).toEqual('function testFunction(a, b){ return a+b }')
+	})
+
+	it('should be able to convert the source string back into a function', () => {
+		let a = 10, b = 20, sum = 30
+		expect(testFunction(a, b)).toEqual(sum) // sanity check
+		expect(fnSource.toFunction()(a, b)).toEqual(testFunction(a, b))
+	})
+
+	it('should be compatible with BaseDTOs', () => {
+		let dto = new DTOWithFunctionSource()
+
+		dto.callback = testFunction
+
+		expect(dto.toJSON()).toEqual({callback: 'function testFunction(a, b){ return a+b }'})
 	})
 })

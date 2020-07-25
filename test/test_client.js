@@ -1,30 +1,15 @@
 const Client = require('../src/client')
 const DatabaseAPI = require('../src/database_api')
-const BaseDTO = require('../src/base_dto')
+const {BaseDTO} = require('../src/base_dto')
 
 class TestDTO1 extends BaseDTO{
-	static databaseName(){
-		return'test_database_1'
-	}
-	static getFields(){
-		return['_id', '_rev']
-	}
+	static databaseName = 'test_database_1'
 }
 class TestDTO2 extends BaseDTO{
-	static databaseName(){
-		return'test_database_2'
-	}
-	static getFields(){
-		return['_id', '_rev']
-	}
+	static databaseName = 'test_database_2'
 }
 class TestDTO3 extends BaseDTO{
-	static databaseName(){
-		return'test_database_3'
-	}
-	static getFields(){
-		return['_id', '_rev']
-	}
+	static databaseName = 'test_database_3'
 }
 
 describe('Client', () => {
@@ -32,13 +17,13 @@ describe('Client', () => {
 		it('has sane defaults', () => {
 			let client = new Client()
 
-			expect(client.baseUrl).toBe('http://localhost:5984')
+			expect(client.baseUrl).toBe('http://couchdb:5984/')
 		})
 
 		it('builds base_url from input parameters', () => {
 			let client = new Client('www.example.com', 80, true)
 
-			expect(client.baseUrl).toBe('https://www.example.com:80')
+			expect(client.baseUrl).toBe('https://www.example.com:80/')
 		})
 	})
 
@@ -56,6 +41,10 @@ describe('Client', () => {
 	describe('listDatabases', () => {
 		let client = new Client()
 
+		beforeAll(done => {
+			client.login('test_user', 'test_password').then(done)
+		})
+
 		it('should return a list of all databases', done => {
 			Promise.all([
 				client.database(TestDTO1).create(),
@@ -63,9 +52,9 @@ describe('Client', () => {
 				client.database(TestDTO3).create()
 			]).then(() => client.listDatabases())
 				.then(response => {
-					expect(response.includes(TestDTO1.databaseName())).toBeTruthy()
-					expect(response.includes(TestDTO2.databaseName())).toBeTruthy()
-					expect(response.includes(TestDTO3.databaseName())).toBeTruthy()
+					expect(response.includes(TestDTO1.getDatabaseName())).toBeTruthy()
+					expect(response.includes(TestDTO2.getDatabaseName())).toBeTruthy()
+					expect(response.includes(TestDTO3.getDatabaseName())).toBeTruthy()
 					done()
 				})
 		})
@@ -74,6 +63,7 @@ describe('Client', () => {
 			client.database(TestDTO1).delete()
 			client.database(TestDTO2).delete()
 			client.database(TestDTO3).delete()
+			client.logout()
 		})
 	})
 })

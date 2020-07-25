@@ -1,0 +1,24 @@
+version: '3'
+services:
+  couchdb:
+    image: couchdb:3.1.0
+    ports:
+      - 5984:5984
+    environment:
+      COUCHDB_USER: test_user
+      COUCHDB_PASSWORD: test_password
+    volumes:
+      - ./couchdb/local.ini:/opt/couchdb/etc/local.ini
+
+  couchjs:
+    build: .
+    ports:
+      - 80:80
+    volumes:
+      - ./src:/usr/couch-js/src
+      - ./test:/usr/couch-js/test
+      - ./index.js:/usr/couch-js/index.js
+      - ./test.js:/usr/couch-js/test.js
+    depends_on:
+      - couchdb
+    entrypoint: ["npm", "run"]

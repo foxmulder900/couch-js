@@ -1,4 +1,5 @@
 {
+    "parser": "babel-eslint",
     "env": {
         "jasmine": true,
         "browser": true,
@@ -9,7 +10,18 @@
     "rules": {
         "camelcase": "off",
         "indent": ["error", "tab"],
-        "keyword-spacing": ["error", {"before": false, "after": false}],
+        "keyword-spacing": ["error", {
+            "overrides": {
+                "if": {
+                    "before": false,
+                    "after": false
+                },
+                "else": {
+                    "before": false,
+                    "after": false
+                }
+            }
+        }],
         "new-cap": "off",
         "no-global-assign": "off",
         "no-return-assign": "off",
@@ -17,6 +29,8 @@
         "object-curly-spacing": ["error", "never"],
         "space-before-blocks": ["error", "never"],
         "space-before-function-paren": ["error", "never"],
-        "space-infix-ops": "off"
+        "space-infix-ops": "off",
+        "brace-style": ["error", "stroustrup"],
+        "one-var": "off"
     }
 }
