@@ -70,7 +70,7 @@ class SessionAPI{
 			.then(json => json['userCtx'])
 	}
 
-	getUserInfo(){
+	getSessionInfo(){
 		return this._userInfoIsEmpty() ? this._fetchInfo() : Promise.resolve(this._userInfo)
 	}
 
