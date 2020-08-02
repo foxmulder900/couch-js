@@ -27,8 +27,8 @@ class Client{
 		return this._session.deauthenticate()
 	}
 
-	getUserInfo(){
-		return this._session.getUserInfo()
+	getSessionInfo(){
+		return this._session.getSessionInfo()
 	}
 }
 

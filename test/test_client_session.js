@@ -12,7 +12,7 @@ describe('Client', () => {
 			.then(response => {
 				expect(response).toBeTruthy()
 			})
-			.then(() => client.getUserInfo())
+			.then(() => client.getSessionInfo())
 			.then(userInfo => {
 				expect(userInfo.name).toEqual('test_user')
 				done()
@@ -20,7 +20,7 @@ describe('Client', () => {
 	})
 
 	it('has an active session', done => {
-		client.getUserInfo().then(response => {
+		client.getSessionInfo().then(response => {
 			expect(response.name).toEqual('test_user')
 			done()
 		})
@@ -30,7 +30,7 @@ describe('Client', () => {
 		client.logout().then(response => {
 			expect(response).toBeTruthy()
 		})
-			.then(() => client.getUserInfo())
+			.then(() => client.getSessionInfo())
 			.then(userInfo => {
 				expect(userInfo.name).toBeNull()
 				done()
@@ -38,7 +38,7 @@ describe('Client', () => {
 	})
 
 	it('does not have an active session', done => {
-		client.getUserInfo().then(response => {
+		client.getSessionInfo().then(response => {
 			expect(response.name).toBeNull()
 			done()
 		})
