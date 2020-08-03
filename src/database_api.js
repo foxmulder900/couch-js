@@ -4,7 +4,6 @@ class DatabaseAPI{
 		this.config = config || {}
 		this.dtoClass = dtoClass
 		this.databaseName = dtoClass.getDatabaseName(this.config)
-		console.log(this.databaseName)
 	}
 
 	// Database level methods
@@ -27,8 +26,6 @@ class DatabaseAPI{
 
 	// Document level methods
 	allDocs(ids){
-		console.log('allDocs')
-		console.log(ids)
 		let path = `${this.databaseName}/_all_docs`
 		// let params = new URLSearchParams({ include_docs: true }).toString()
 		let params = 'include_docs=true'
@@ -132,7 +129,6 @@ class DatabaseAPI{
 	}
 
 	fetchView(dto, designDocName, viewName, asObject){
-		console.log('fetch-view')
 		return this.session.makeRequest(`${this.databaseName}/_design/${designDocName}/_view/${viewName}`)
 			.then(json => json['rows'].map(doc => new dto({key: doc.key, ...doc.value})))
 			.then(dtos => asObject ? Object.fromEntries(dtos.map(dto => [dto.key, dto])) : dtos)

@@ -13,10 +13,7 @@ class Client{
 	}
 
 	database(dtoClass, config){
-		console.log('database')
-		console.log(this._databases[dtoClass])
 		let database = this._databases[dtoClass] || new DatabaseAPI(this._session, dtoClass, config)
-		console.log(database)
 		this._databases[dtoClass] = database
 		return database
 	}
