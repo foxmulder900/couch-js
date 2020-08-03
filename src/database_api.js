@@ -134,8 +134,8 @@ class DatabaseAPI{
 	fetchView(dto, designDocName, viewName, asObject){
 		console.log('fetch-view')
 		return this.session.makeRequest(`${this.databaseName}/_design/${designDocName}/_view/${viewName}`)
-			.then(json =>  json['rows'].map(doc => new dto({key: doc.key, ...doc.value})))
-			.then(dtos =>  asObject ? Object.fromEntries(dtos.map(dto => [dto.key, dto])) : dtos)
+			.then(json => json['rows'].map(doc => new dto({key: doc.key, ...doc.value})))
+			.then(dtos => asObject ? Object.fromEntries(dtos.map(dto => [dto.key, dto])) : dtos)
 	}
 
 	// Private helper methods
