@@ -15,7 +15,7 @@ class TestDTO3 extends BaseDTO{
 describe('Client', () => {
 	describe('constructor', () => {
 		it('has sane defaults', () => {
-			let client = new Client()
+			let client = new Client('couchdb')
 
 			expect(client.baseUrl).toBe('http://couchdb:5984/')
 		})
@@ -29,7 +29,7 @@ describe('Client', () => {
 
 	describe('database factory', () => {
 		it('should return a new DatabaseAPI instance', () => {
-			let client = new Client()
+			let client = new Client('couchdb')
 
 			let database = client.database(TestDTO1)
 
@@ -39,7 +39,7 @@ describe('Client', () => {
 	})
 
 	describe('listDatabases', () => {
-		let client = new Client()
+		let client = new Client('couchdb')
 
 		beforeAll(done => {
 			client.login('test_user', 'test_password').then(done)

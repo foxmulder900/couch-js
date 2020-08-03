@@ -9,6 +9,7 @@ describe('DatabaseAPI', () => {
 	}
 
 	let session = new SessionAPI('http://couchdb:5984/')
+	session.authenticate('test_user', 'test_password')
 
 	describe('Database CRUD', () => {
 		let database = new DatabaseAPI(session, TestDTO)
