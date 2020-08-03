@@ -3,30 +3,33 @@ class DatabaseAPI{
 		this.session = session
 		this.config = config || {}
 		this.dtoClass = dtoClass
-		this.name = dtoClass.getDatabaseName(this.config)
+		this.databaseName = dtoClass.getDatabaseName(this.config)
+		console.log(this.databaseName)
 	}
 
 	// Database level methods
 	create(){
-		return this.session.makeRequest(this.name, 'PUT')
+		return this.session.makeRequest(this.databaseName, 'PUT')
 	}
 
 	delete(){
-		return this.session.makeRequest(this.name, 'DELETE')
+		return this.session.makeRequest(this.databaseName, 'DELETE')
 	}
 
 	exists(){
-		return this.session.makeRequest(this.name, 'HEAD', {}, undefined, true)
+		return this.session.makeRequest(this.databaseName, 'HEAD', {}, undefined, true)
 			.then((response) => response.status === 200)
 	}
 
 	info(){
-		return this.session.makeRequest(this.name)
+		return this.session.makeRequest(this.databaseName)
 	}
 
 	// Document level methods
 	allDocs(ids){
-		let path = `${this.name}/_all_docs`
+		console.log('allDocs')
+		console.log(ids)
+		let path = `${this.databaseName}/_all_docs`
 		// let params = new URLSearchParams({ include_docs: true }).toString()
 		let params = 'include_docs=true'
 
@@ -62,7 +65,7 @@ class DatabaseAPI{
 
 		let headers = {'Content-Type': 'application/json'}
 		let body = JSON.stringify(jsonObj)
-		return this.session.makeRequest(this.name, 'POST', headers, body)
+		return this.session.makeRequest(this.databaseName, 'POST', headers, body)
 			.then(json => {
 				if(!json['ok']){
 					console.warn('WARNING: JSON not OK!')
@@ -75,25 +78,25 @@ class DatabaseAPI{
 	}
 
 	readDoc(documentId){
-		let path = `${this.name}/${documentId}`
+		let path = `${this.databaseName}/${documentId}`
 		return this.session.makeRequest(path)
 			.then(json => new this.dtoClass(json))
 	}
 
 	deleteDoc(dto){
-		let path = `${this.name}/${dto._id}`
+		let path = `${this.databaseName}/${dto._id}`
 		let params = `rev=${dto._rev}`
 		return this.session.makeRequest(`${path}?${params}`, 'DELETE')
 	}
 
 	docExists(documentId){
-		let path = `${this.name}/${documentId}`
+		let path = `${this.databaseName}/${documentId}`
 		return this.session.makeRequest(path, 'HEAD', {}, undefined, true)
 			.then((response) => response.status === 200)
 	}
 
 	updateDoc(dto){
-		let path = `${this.name}/${dto._id}`
+		let path = `${this.databaseName}/${dto._id}`
 		let headers = {'Content-Type': 'application/json'}
 		let body = JSON.stringify(dto.toJSON())
 
@@ -102,7 +105,7 @@ class DatabaseAPI{
 	}
 
 	queryDocs(queryObject){
-		let path = `${this.name}/_find`
+		let path = `${this.databaseName}/_find`
 		let headers = {'Content-Type': 'application/json'}
 		let body = JSON.stringify({selector: queryObject})
 		return this.session.makeRequest(path, 'POST', headers, body)
@@ -113,11 +116,26 @@ class DatabaseAPI{
 
 	createDesignDoc(dto){
 		// TODO: assert dto is DesignDocDTO
-		let path = `${this.name}/_design/${dto.name}`
+		let path = `${this.databaseName}/_design/${dto.name}`
 		let headers = {'Content-Type': 'application/json'}
 		let body = JSON.stringify(dto.toJSON())
 		return this.session.makeRequest(path, 'PUT', headers, body)
 			.then(json => DatabaseAPI._checkJSON(json, dto))
+	}
+
+	security(data){
+		let path = `${this.databaseName}/_security`
+		let headers = {'Content-Type': 'application/json'}
+		let body = JSON.stringify(data)
+		return this.session.makeRequest(path, 'PUT', headers, body)
+			.then(DatabaseAPI._checkJSON)
+	}
+
+	fetchView(dto, designDocName, viewName, asObject){
+		console.log('fetch-view')
+		return this.session.makeRequest(`${this.databaseName}/_design/${designDocName}/_view/${viewName}`)
+			.then(json =>  json['rows'].map(doc => new dto({key: doc.key, ...doc.value})))
+			.then(dtos =>  asObject ? Object.fromEntries(dtos.map(dto => [dto.key, dto])) : dtos)
 	}
 
 	// Private helper methods

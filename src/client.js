@@ -1,16 +1,22 @@
 const DatabaseAPI = require('./database_api')
 const SessionAPI = require('./session_api')
+const Config = require('../config')
 
 class Client{
-	constructor(host = 'couchdb', port=5984, secure=false){
-		let protocol = secure ? 'https' : 'http'
+	constructor(host, port, secure){
+		host = host || Config.defaultHost
+		port = port || Config.defaultPort
+		let protocol = secure ? 'https' : Config.defaultProtocol
 		this.baseUrl = `${protocol}://${host}:${port}/`
 		this._session = new SessionAPI(this.baseUrl)
 		this._databases = {}
 	}
 
 	database(dtoClass, config){
+		console.log('database')
+		console.log(this._databases[dtoClass])
 		let database = this._databases[dtoClass] || new DatabaseAPI(this._session, dtoClass, config)
+		console.log(database)
 		this._databases[dtoClass] = database
 		return database
 	}
@@ -19,8 +25,10 @@ class Client{
 		return this._session.makeRequest('_all_dbs')
 	}
 
-	login(userName, password){
-		return this._session.authenticate(userName, password)
+	login(username, password){
+		username = username || Config.defaultUsername
+		password = password || Config.defaultPassword
+		return this._session.authenticate(username, password)
 	}
 
 	logout(){
