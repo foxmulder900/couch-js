@@ -63,15 +63,7 @@ class DatabaseAPI{
 		let headers = {'Content-Type': 'application/json'}
 		let body = JSON.stringify(jsonObj)
 		return this.session.makeRequest(this.databaseName, 'POST', headers, body)
-			.then(json => {
-				if(!json['ok']){
-					console.warn('WARNING: JSON not OK!')
-					console.warn(json)
-				}
-				dto._id = json['id']
-				dto._rev = json['rev']
-				return dto._id
-			})
+			.then(DatabaseAPI._checkJSON)
 	}
 
 	readDoc(documentId){
@@ -140,10 +132,11 @@ class DatabaseAPI{
 			console.warn('WARNING: JSON not OK!')
 			console.warn(json)
 			console.trace()
+			return Promise.reject('JSON not OK!')
 		}
 		dto._id = json['id']
 		dto._rev = json['rev']
-		return dto._id
+		return Promise.resolve(dto._id)
 	}
 }
 
