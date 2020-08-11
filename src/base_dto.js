@@ -142,6 +142,7 @@ class BaseDTO{
 				this[fieldName] = value
 			}
 		})
+		return this
 	}
 
 	toJSON(){

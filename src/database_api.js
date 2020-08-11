@@ -54,16 +54,16 @@ class DatabaseAPI{
 
 	createDoc(dto){
 		// TODO assert that dto.id is undefined, otherwise it would be an indication that the document already exists
-
-		if(dto instanceof this.dtoClass === false){
+		if(!(dto instanceof this.dtoClass)){
 			dto = new this.dtoClass(dto)
 		}
+
 		let jsonObj = dto.toJSON()
 
 		let headers = {'Content-Type': 'application/json'}
 		let body = JSON.stringify(jsonObj)
 		return this.session.makeRequest(this.databaseName, 'POST', headers, body)
-			.then(DatabaseAPI._checkJSON)
+			.then(json => DatabaseAPI._checkJSON(json, dto))
 	}
 
 	readDoc(documentId){
