@@ -1,4 +1,4 @@
-const {BaseDTO, FunctionSource} = require('../src/base_dto')
+const BaseDTO = require('../src/base_dto')
 
 describe('BaseDTO', () => {
 	class TestNestedDTO extends BaseDTO{
@@ -138,36 +138,5 @@ describe('BaseDTO', () => {
 				dto.fake_field = 'test'
 			}).toThrow(expected_error)
 		})
-	})
-})
-
-describe('FunctionSource', () => {
-	/* eslint-disable brace-style */
-	function testFunction(a, b){ return a+b }
-	/* eslint-disable brace-style */
-
-	let fnSource
-
-	class DTOWithFunctionSource extends BaseDTO{
-		static fields = [{name: 'callback', type: FunctionSource}]
-	}
-
-	it('should accept a function as an argument and store it as a string', () => {
-		fnSource = new FunctionSource(testFunction)
-		expect(fnSource.source).toEqual('function testFunction(a, b){ return a+b }')
-	})
-
-	it('should be able to convert the source string back into a function', () => {
-		let a = 10, b = 20, sum = 30
-		expect(testFunction(a, b)).toEqual(sum) // sanity check
-		expect(fnSource.toFunction()(a, b)).toEqual(testFunction(a, b))
-	})
-
-	it('should be compatible with BaseDTOs', () => {
-		let dto = new DTOWithFunctionSource()
-
-		dto.callback = testFunction
-
-		expect(dto.toJSON()).toEqual({callback: 'function testFunction(a, b){ return a+b }'})
 	})
 })

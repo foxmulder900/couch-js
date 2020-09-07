@@ -51,7 +51,7 @@ class BaseDTO{
 
 		return new Proxy(this, {
 			// Intercepts set/get and handles type-checking
-			// Only handles conversion of primitive types and functions
+			// Only handles conversion of primitive types
 			set(target, name, value){
 				let field = getField(target, name)
 
@@ -64,19 +64,7 @@ class BaseDTO{
 
 				validateValueType(field, value)
 
-				if(field.type === FunctionSource){
-					target[name] = new FunctionSource(value)
-					return true
-				}
-				else if(field.type === Object && field.subType === FunctionSource){
-					let obj = Object(value)
-					Object.keys(obj).map(key => {
-						obj[key] = new FunctionSource(obj[key])
-					})
-					target[name] = obj
-					return true
-				}
-				else if(isPrimitive(field.type)){
+				if(isPrimitive(field.type)){
 					target[name] = field.type(value)
 					return true
 				}
@@ -95,17 +83,6 @@ class BaseDTO{
 							return target[name].valueOf()
 						}
 						return value ? value.valueOf() : value
-					}
-					else if(field.type === FunctionSource){
-						let value = target[name]
-						return value ? value.getSource() : value
-					}
-					else if(field.type === Object && field.subType === FunctionSource){
-						let obj = Object(target[name])
-						Object.keys(obj).map(key => {
-							obj[key] = obj[key].getSource()
-						})
-						return obj
 					}
 				}
 
@@ -169,6 +146,9 @@ class BaseDTO{
 		Object.keys(this._fields).forEach(fieldName => {
 			let field = this._fields[fieldName]
 			let value = this[fieldName]
+			if(value === undefined || value === null){
+				return null
+			}
 
 			if(field.type === Array){
 				jsonObj[fieldName] = isDTO(field.subType) ? value.map(subObject => subObject.toJSON()) : value
@@ -190,28 +170,6 @@ class BaseDTO{
 	}
 }
 
-class FunctionSource{
-	constructor(function_definition){
-		this.source = function_definition.toString()
-	}
-
-	toFunction(){
-		let body_start = this.source.indexOf('{'),
-			body_end = this.source.lastIndexOf('}'),
-			body = this.source.substring(body_start+1, body_end),
-			declaration = this.source.substring(0, body_start),
-			parameter_start = declaration.indexOf('('),
-			parameter_end = declaration.lastIndexOf(')'),
-			parameters = declaration.substring(parameter_start+1, parameter_end).split(',')
-
-		return Function.apply(this, [...parameters, body])
-	}
-
-	getSource(){
-		return this.source
-	}
-}
-
 function isDTO(cls){
 	return Boolean(cls.prototype instanceof BaseDTO)
 }
@@ -220,7 +178,4 @@ function isPrimitive(cls){
 	return Boolean(cls === Boolean || cls === Number || cls === String || cls === Object)
 }
 
-module.exports = {
-	BaseDTO,
-	FunctionSource
-}
+module.exports = BaseDTO

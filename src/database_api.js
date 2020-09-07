@@ -67,9 +67,14 @@ class DatabaseAPI{
 	}
 
 	readDoc(documentId){
+		// TODO: probably add a failIfDoesntExist option, currently if the document does not exist we return a fresh DTO
 		let path = `${this.databaseName}/${documentId}`
 		return this.session.makeRequest(path)
-			.then(json => new this.dtoClass(json))
+			.then(json => {
+				let doc = new this.dtoClass(json)
+				doc._id = doc._id || documentId
+				return doc
+			})
 	}
 
 	deleteDoc(dto){
@@ -101,15 +106,6 @@ class DatabaseAPI{
 			.then(response => {
 				return response['docs'].map(doc => new this.dtoClass(doc))
 			})
-	}
-
-	createDesignDoc(dto){
-		// TODO: assert dto is DesignDocDTO
-		let path = `${this.databaseName}/_design/${dto.name}`
-		let headers = {'Content-Type': 'application/json'}
-		let body = JSON.stringify(dto.toJSON())
-		return this.session.makeRequest(path, 'PUT', headers, body)
-			.then(json => DatabaseAPI._checkJSON(json, dto))
 	}
 
 	security(data){

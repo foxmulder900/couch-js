@@ -3,12 +3,12 @@ const SessionAPI = require('./session_api')
 
 class Client{
 	constructor(config){
-		this.config = config
-		let host = config.host || 'localhost'
-		let port = config.port || 5984
-		let protocol = config.protocol || 'http'
+		this.config = config || {}
+		let host = this.config.host || 'localhost'
+		let port = this.config.port || 5984
+		let protocol = this.config.protocol || 'http'
 		this.baseUrl = `${protocol}://${host}:${port}/`
-		this._session = new SessionAPI(this.baseUrl, config)
+		this._session = new SessionAPI(this.baseUrl, this.config)
 		this._databases = {}
 	}
 
