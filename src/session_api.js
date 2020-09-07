@@ -58,7 +58,7 @@ class SessionAPI{
 			method,
 			credentials: 'include',
 			headers: Object.assign(defaultHeaders, headers),
-			body,
+			body
 		}).then(response => {
 			if(response.status === 404 && this.config['on404']){
 				return this.config['on404'](response)

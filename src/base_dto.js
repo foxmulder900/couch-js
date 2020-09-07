@@ -121,19 +121,38 @@ class BaseDTO{
 		return proxy
 	}
 
+	castSubArray(array, field){
+		return array.map((value, index) => {
+			if(value && typeof value === 'object'){
+				value['_id'] = value['_id'] || index.toString()
+			}
+			return new field.subType(value)
+		})
+	}
+
+	castSubObject(object, field){
+		object = Object.assign({}, object)
+		return Object.fromEntries(
+			Object.entries(object).map(([key, value]) => {
+				if(value && typeof value === 'object'){
+					value['_id'] = value['_id'] || key
+				}
+				return [key, new field.subType(value)]
+			})
+		)
+	}
+
 	fromJSON(jsonObj){
+		jsonObj = Object.assign({}, jsonObj)
 		Object.keys(this._fields).forEach(fieldName => {
 			let field = this._fields[fieldName]
 			let value = jsonObj[fieldName]
 
 			if(field.type === Array){
-				this[fieldName] = value ? value.map(subObject => new field.subType(subObject)) : []
+				this[fieldName] = value ? this.castSubArray(value, field) : []
 			}
 			else if(field.type === Object){
-				this[fieldName] = value
-					? Object.assign(
-						{}, ...Object.keys(value).map(key => ({[key]: new field.subType(value[key])}))
-					) : {}
+				this[fieldName] = value ? this.castSubObject(value, field) : {}
 			}
 			else if(isDTO(field.type)){
 				this[fieldName] = new field.type(value)
