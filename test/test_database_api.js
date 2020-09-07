@@ -1,6 +1,6 @@
 const DatabaseAPI = require('../src/database_api')
 const SessionAPI = require('../src/session_api')
-const {BaseDTO} = require('../src/base_dto')
+const BaseDTO = require('../src/base_dto')
 
 describe('DatabaseAPI', () => {
 	class TestDTO extends BaseDTO{
