@@ -29,7 +29,7 @@ describe('Client', () => {
 
 	describe('database factory', () => {
 		it('should return a new DatabaseAPI instance', () => {
-			let client = new Client('couchdb')
+			let client = new Client({host: 'couchdb'})
 
 			let database = client.database(TestDTO1)
 
@@ -39,7 +39,7 @@ describe('Client', () => {
 	})
 
 	describe('listDatabases', () => {
-		let client = new Client('couchdb')
+		let client = new Client({host: 'couchdb'})
 
 		beforeAll(done => {
 			client.login('test_user', 'test_password').then(done)

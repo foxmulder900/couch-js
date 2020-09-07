@@ -19,7 +19,7 @@ class SessionAPI{
 		 * @param {boolean} http_only If true, the class assumes there is a browser correctly handling cookie headers.
 		 * 		Otherwise cookies are managed by the class. Defaults to true, pass false for environments such as Node.
 		 */
-		this.config = config
+		this.config = config || {}
 		this.baseUrl = baseUrl
 		this._userInfo = {}
 		this.cookie = null

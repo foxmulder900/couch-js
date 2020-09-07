@@ -1,7 +1,7 @@
 const Client = require('../src/client')
 
 describe('Client', () => {
-	let client = new Client('couchdb')
+	let client = new Client({host: 'couchdb'})
 
 	it('can create a session', done => {
 		client.login('test_user', 'test_password')
