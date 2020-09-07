@@ -132,7 +132,7 @@ class DatabaseAPI{
 			console.warn('WARNING: JSON not OK!')
 			console.warn(json)
 			console.trace()
-			return Promise.reject('JSON not OK!')
+			return Promise.reject(new Error('JSON not OK!'))
 		}
 		dto._id = json['id']
 		dto._rev = json['rev']

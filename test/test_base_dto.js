@@ -3,7 +3,7 @@ const {BaseDTO, FunctionSource} = require('../src/base_dto')
 describe('BaseDTO', () => {
 	class TestNestedDTO extends BaseDTO{
 		static databaseName = 'test_database'
-		static fields = ['message']
+		static fields = ['_id', 'message']
 	}
 
 	class TestDTO extends BaseDTO{
@@ -35,9 +35,12 @@ describe('BaseDTO', () => {
 		let float_as_string = 5.3 // This should be interpreted as a string
 		let typed_number = 5 // This should be interpreted as a Number
 		let typed_number_float = 5.2 // This should be interpreted as a Number as well
-		let nested_dto = {message: 'Hello world!'}
-		let nested_dto_array = [{message: 'one'}, {message: 'two'}]
-		let nested_dto_dictionary = {'three': {message: 'three'}, 'four': {message: 'four'}}
+		let nested_dto = {_id: '123', message: 'Hello world!'}
+		let nested_dto_array = [{_id: '0', message: 'one'}, {_id: '1', message: 'two'}]
+		let nested_dto_dictionary = {
+			'three': {_id: 'three', message: 'three'},
+			'four': {_id: 'three', message: 'four'}
+		}
 
 		it('should be built from a JavaScript Object', () => {
 			dto = new TestDTO({_id,

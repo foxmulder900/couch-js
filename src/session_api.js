@@ -13,12 +13,13 @@ else{
 }
 
 class SessionAPI{
-	constructor(baseUrl){
+	constructor(baseUrl, config){
 		/**
 		 * @param {string} baseUrl The CouchDB host URL without any path information.
 		 * @param {boolean} http_only If true, the class assumes there is a browser correctly handling cookie headers.
 		 * 		Otherwise cookies are managed by the class. Defaults to true, pass false for environments such as Node.
 		 */
+		this.config = config || {}
 		this.baseUrl = baseUrl
 		this._userInfo = {}
 		this.cookie = null
@@ -58,6 +59,11 @@ class SessionAPI{
 			credentials: 'include',
 			headers: Object.assign(defaultHeaders, headers),
 			body
+		}).then(response => {
+			if(response.status === 404 && this.config['on404']){
+				return this.config['on404'](response)
+			}
+			return response
 		}).then(response => raw ? response : response.json())
 	}
 
