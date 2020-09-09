@@ -108,7 +108,6 @@ class BaseDTO{
 	}
 
 	castSubObject(object, field){
-		object = Object.assign({}, object)
 		return Object.fromEntries(
 			Object.entries(object).map(([key, value]) => {
 				if(value && typeof value === 'object'){
@@ -120,7 +119,7 @@ class BaseDTO{
 	}
 
 	fromJSON(jsonObj){
-		jsonObj = Object.assign({}, jsonObj)
+		jsonObj = jsonObj instanceof String ? JSON.parse(jsonObj) : copyObject(jsonObj)
 		Object.keys(this._fields).forEach(fieldName => {
 			let field = this._fields[fieldName]
 			let value = jsonObj[fieldName]
@@ -176,6 +175,10 @@ function isDTO(cls){
 
 function isPrimitive(cls){
 	return Boolean(cls === Boolean || cls === Number || cls === String || cls === Object)
+}
+
+function copyObject(object){
+	return Object.assign({}, object)
 }
 
 module.exports = BaseDTO
