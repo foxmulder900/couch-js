@@ -122,6 +122,15 @@ class DatabaseAPI{
 			.then(dtos => asObject ? Object.fromEntries(dtos.map(dto => [dto.key, dto])) : dtos)
 	}
 
+	callUpdate(designDocName, updateName, documentId='', params={}, responseDTO=null){
+		return this.session.makeRequest(
+			`${this.databaseName}/_design/${designDocName}/_update/${updateName}/${documentId}`,
+			'PUT',
+			{},
+			params
+		).then(response => responseDTO ? new responseDTO(response) : response)
+	}
+
 	// Private helper methods
 	static _checkJSON(json, dto){
 		if(!json['ok']){
