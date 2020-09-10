@@ -60,10 +60,8 @@ class SessionAPI{
 			headers: Object.assign(defaultHeaders, headers),
 			body: body instanceof Object ? JSON.stringify(body) : body
 		}).then(response => {
-			if(response.status === 404 && this.config['on404']){
-				return this.config['on404'](response)
-			}
-			return response
+			let statusCallback = this.config[`on${response.status}`]
+			return statusCallback ? statusCallback(response) : response
 		}).then(response => raw ? response : response.json())
 	}
 
