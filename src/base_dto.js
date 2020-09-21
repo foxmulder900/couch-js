@@ -181,4 +181,7 @@ function copyObject(object){
 	return Object.assign({}, object)
 }
 
-module.exports = BaseDTO
+module.exports = {
+	BaseDTO,
+	isDTO
+}

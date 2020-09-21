@@ -12,9 +12,11 @@ class Client{
 		this._databases = {}
 	}
 
-	database(dtoClass, config){
-		let database = this._databases[dtoClass] || new DatabaseAPI(this._session, dtoClass, config)
-		this._databases[dtoClass] = database
+	database(nameOrDTOClass, config){
+		let databaseName = nameOrDTOClass instanceof String ? nameOrDTOClass : nameOrDTOClass.name
+		let cacheKey = databaseName + JSON.stringify(config)
+		let database = this._databases[cacheKey] || new DatabaseAPI(this._session, nameOrDTOClass, config)
+		this._databases[cacheKey] = database
 		return database
 	}
 

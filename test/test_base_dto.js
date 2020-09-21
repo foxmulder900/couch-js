@@ -1,4 +1,4 @@
-const BaseDTO = require('../src/base_dto')
+const BaseDTO = require('../src/base_dto').BaseDTO
 
 describe('BaseDTO', () => {
 	class TestNestedDTO extends BaseDTO{
