@@ -1,8 +1,8 @@
-const BaseDTO = require('./src/base_dto')
+const {BaseDTO, isDTO} = require('./src/base_dto')
 const Client = require('./src/client')
 const DatabaseAPI = require('./src/database_api')
 const {DesignDocDTO, ViewDTO} = require('./src/design_doc_dto')
-const CouchUtils = require('./src/utils')
+const {getUserDatabaseName} = require('./src/utils')
 
 
 module.exports = {
@@ -11,5 +11,6 @@ module.exports = {
 	DatabaseAPI,
 	DesignDocDTO,
 	ViewDTO,
-	CouchUtils,
+	getUserDatabaseName,
+	isDTO
 }

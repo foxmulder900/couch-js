@@ -1,4 +1,4 @@
-const BaseDTO = require('./base_dto')
+const BaseDTO = require('./base_dto').BaseDTO
 
 class ViewDTO extends BaseDTO{
 	static fields = [
@@ -29,6 +29,12 @@ class DesignDocDTO extends BaseDTO{
 			map: map ? map.toString() : map,
 			reduce: reduce ? reduce.toString() : reduce
 		})
+	}
+
+	addShow(name, showFunction){
+		console.warning('CouchDB show functions are deprecated.')
+		this.shows = this.shows || {}
+		this.shows[name] = showFunction.toString()
 	}
 }
 

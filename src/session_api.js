@@ -2,6 +2,7 @@
  * A simple wrapper to make CouchDB cookie authentication a piece of cake.
  * https://docs.couchdb.org/en/stable/api/server/authn.html#cookie-authentication
  */
+const utils = require('./utils')
 
 let HTTP_ONLY
 if(typeof fetch === 'undefined'){
@@ -35,7 +36,7 @@ class SessionAPI{
 				}
 				return response.json()
 			})
-			.then(SessionAPI._checkJSON)
+			.then(utils.checkOk)
 	}
 
 	deauthenticate(){
@@ -76,20 +77,6 @@ class SessionAPI{
 
 	getSessionInfo(){
 		return this._userInfoIsEmpty() ? this._fetchInfo() : Promise.resolve(this._userInfo)
-	}
-
-	// Private helper methods
-	static _checkJSON(json){
-		// TODO: this should probably be handled by looking at HTTP codes instead
-		if(json['ok']){
-			return true
-		}
-		else{
-			console.warn('WARNING: JSON not OK!')
-			console.warn(json)
-			console.trace()
-			return false
-		}
 	}
 }
 

@@ -14,6 +14,25 @@ function toHex(s){
 	return h
 }
 
+function checkOk(json){
+	if(json.ok){
+		return Promise.resolve(json)
+	}
+	else{
+		console.warn('WARNING: JSON not OK!')
+		console.warn(json)
+		return Promise.reject(new Error('JSON not OK!'))
+	}
+}
+
+function updateRevision(json, dto){
+	dto._id = json['id']
+	dto._rev = json['rev']
+	return Promise.resolve(dto._id)
+}
+
 module.exports = {
-	getUserDatabaseName
+	getUserDatabaseName,
+	checkOk,
+	updateRevision
 }
