@@ -11,7 +11,6 @@ describe('DatabaseAPI', () => {
 	let session = new SessionAPI('http://couchdb:5984/')
 	session.authenticate('test_user', 'test_password')
 
-
 	describe('Database CRUD', () => {
 		[TestDTO, 'test_database'].forEach(nameOrDtoClass => {
 			let database = new DatabaseAPI(session, nameOrDtoClass)
@@ -155,7 +154,7 @@ describe('DatabaseAPI', () => {
 				database.delete().then(done)
 			})
 
-			function assertExists(exists, documentId, done) {
+			function assertExists(exists, documentId, done){
 				database.docExists(documentId)
 					.then((response) => {
 						expect(response).toBe(exists)
@@ -164,6 +163,4 @@ describe('DatabaseAPI', () => {
 			}
 		})
 	})
-
-
 })
