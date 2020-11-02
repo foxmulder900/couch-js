@@ -140,7 +140,7 @@ class DatabaseAPI{
 	}
 
 	fetchShow(dto, designDocName, showName, docId){
-		console.warning('CouchDB show functions are deprecated.')
+		console.warn('CouchDB show functions are deprecated.')
 		return this.session.makeRequest(`${this.databaseName}/_design/${designDocName}/_show/${showName}/${docId}`)
 			.then(json => new dto(json))
 	}

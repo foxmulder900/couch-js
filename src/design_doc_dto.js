@@ -32,7 +32,7 @@ class DesignDocDTO extends BaseDTO{
 	}
 
 	addShow(name, showFunction){
-		console.warning('CouchDB show functions are deprecated.')
+		console.warn('CouchDB show functions are deprecated.')
 		this.shows = this.shows || {}
 		this.shows[name] = showFunction.toString()
 	}
