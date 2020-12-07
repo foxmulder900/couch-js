@@ -1,5 +1,6 @@
 const DatabaseAPI = require('./database_api')
 const SessionAPI = require('./session_api')
+const {isDTO} = require('./base_dto')
 
 class Client{
 	constructor(config){
@@ -13,7 +14,7 @@ class Client{
 	}
 
 	database(nameOrDTOClass, config){
-		let databaseName = nameOrDTOClass instanceof String ? nameOrDTOClass : nameOrDTOClass.name
+		let databaseName = isDTO(nameOrDTOClass) ? nameOrDTOClass.name : nameOrDTOClass
 		let cacheKey = databaseName + JSON.stringify(config)
 		let database = this._databases[cacheKey] || new DatabaseAPI(this._session, nameOrDTOClass, config)
 		this._databases[cacheKey] = database
@@ -25,9 +26,6 @@ class Client{
 	}
 
 	login(username, password){
-		// TODO: don't have default credentials
-		username = username || 'test_username'
-		password = password || 'test_password'
 		return this._session.authenticate(username, password)
 	}
 

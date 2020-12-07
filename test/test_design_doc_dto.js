@@ -1,10 +1,8 @@
 const {DesignDocDTO} = require('../src/design_doc_dto')
 
-class TestDesignDocDTO extends DesignDocDTO{}
-
 describe('DesignDocDTO', () => {
 	it('properly serializes functions', () => {
-		let dto = new TestDesignDocDTO()
+		let dto = new DesignDocDTO()
 
 		/* eslint-disable brace-style, no-undef */
 		dto.addView('test_view', function(doc){ emit(doc._id) })

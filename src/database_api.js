@@ -1,3 +1,4 @@
+const DesignDocDTO = require('./design_doc_dto').DesignDocDTO
 const isDTO = require('./base_dto').isDTO
 const utils = require('./utils')
 
@@ -122,6 +123,17 @@ class DatabaseAPI{
 				else{
 					return response['docs']
 				}
+			})
+	}
+
+	readDesignDoc(designDocName){
+		let designDocId = `_design/${designDocName}`
+		let path = `${this.databaseName}/${designDocId}`
+		return this.session.makeRequest(path)
+			.then(json => {
+				let doc = new DesignDocDTO(json)
+				doc._id = designDocId
+				return doc
 			})
 	}
 

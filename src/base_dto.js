@@ -79,13 +79,9 @@ class BaseDTO{
 				if(field){
 					if(field.type === String){
 						let value = target[name]
-						if(value){
-							return target[name].valueOf()
-						}
 						return value ? value.valueOf() : value
 					}
 				}
-
 				return target[name]
 			}
 		})
