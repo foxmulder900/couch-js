@@ -166,7 +166,7 @@ class BaseDTO{
 }
 
 function isDTO(cls){
-	return Boolean(cls.prototype instanceof BaseDTO)
+	return Boolean(cls && cls.prototype instanceof BaseDTO)
 }
 
 function isPrimitive(cls){
