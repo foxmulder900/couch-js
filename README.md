@@ -7,7 +7,7 @@ A CouchDB JavaScript client.
 `docker-compose up -d couchdb`
 
 ##### Run Lint
-`docker-compose run couchjs lint`
+`docker-compose run --rm couchjs lint`
 
 ##### Run Tests
-`docker-compose run couchjs test`
+`docker-compose run --rm couchjs test`
