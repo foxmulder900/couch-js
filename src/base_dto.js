@@ -62,7 +62,7 @@ class BaseDTO{
 		})
 	}
 
-	constructor(jsonObj) {
+	constructor(jsonObj){
 		this._initFields()
 		let proxy = this._buildProxy()
 		jsonObj = isDTO(jsonObj) ? jsonObj.toJSON() : jsonObj

@@ -140,7 +140,7 @@ describe('BaseDTO', () => {
 		})
 	})
 
-	describe('getters and setters', ()=>{
+	describe('getters and setters', () => {
 		it('should convert object to DTO class', () => {
 			let dto = new TestDTO()
 			dto.nested_dto = {'_id': 1, 'message': 'hello'}
@@ -152,7 +152,7 @@ describe('BaseDTO', () => {
 			let dto = new TestDTO()
 			dto.nested_dto_array = [
 				new TestNestedDTO({'_id': 1, 'message': 'hello'}),
-				{'_id': 2, 'message': 'world'},
+				{'_id': 2, 'message': 'world'}
 			]
 
 			expect(dto.nested_dto_array[0]).toBeInstanceOf(TestNestedDTO)
@@ -166,8 +166,8 @@ describe('BaseDTO', () => {
 		it('should convert object values to DTO subType', () => {
 			let dto = new TestDTO()
 			dto.nested_dto_dictionary = {
-				'a': new TestNestedDTO({ '_id': 1, 'message': 'hello' }),
-				'b': { '_id': 2, 'message': 'world' }
+				'a': new TestNestedDTO({'_id': 1, 'message': 'hello'}),
+				'b': {'_id': 2, 'message': 'world'}
 			}
 
 			expect(dto.nested_dto_dictionary['a']).toBeInstanceOf(TestNestedDTO)
