@@ -32,26 +32,8 @@ class BaseDTO{
 	}
 
 	_buildProxy(){
-		function getField(target, name){
-			if(name === '_fields'){
-				throw new Error(`Unable to set set value, "_fields" is a reserved property used by couch-js.`)
-			}
-			if(!target._fields.hasOwnProperty(name)){
-				throw new Error(`Unable to set value, object does not have field with name: ${name}`)
-			}
-			return target._fields[name]
-		}
-
-		function validateValueType(field, value){
-			let fieldType = field.type
-			if(fieldType === Array && !Array.isArray(value)){
-				throw new Error(`Expected Array for field ${name} got ${typeof value}`)
-			}
-		}
-
 		return new Proxy(this, {
-			// Intercepts set/get and handles type-checking
-			// Only handles conversion of primitive types
+			// Intercepts set/get and handles validation and casting
 			set(target, name, value){
 				let field = getField(target, name)
 
@@ -59,19 +41,12 @@ class BaseDTO{
 					// TODO: Throw an error if value is required
 					// Should we convert all nulls to undefined?
 					target[name] = value
-					return true
-				}
-
-				validateValueType(field, value)
-
-				if(isPrimitive(field.type)){
-					target[name] = field.type(value)
-					return true
 				}
 				else{
-					target[name] = value
-					return true
+					validateValue(field, value)
+					target[name] = castValue(value, field.type, field.subType)
 				}
+				return true
 			},
 
 			get(target, name){
@@ -89,29 +64,10 @@ class BaseDTO{
 
 	constructor(jsonObj){
 		this._initFields()
-		let proxy =this._buildProxy()
+		let proxy = this._buildProxy()
+		jsonObj = isDTO(jsonObj) ? jsonObj.toJSON() : jsonObj
 		jsonObj && proxy.fromJSON(jsonObj)
 		return proxy
-	}
-
-	castSubArray(array, field){
-		return array.map((value, index) => {
-			if(value && typeof value === 'object'){
-				value['_id'] = value['_id'] || index.toString()
-			}
-			return new field.subType(value)
-		})
-	}
-
-	castSubObject(object, field){
-		return Object.fromEntries(
-			Object.entries(object).map(([key, value]) => {
-				if(value && typeof value === 'object'){
-					value['_id'] = value['_id'] || key
-				}
-				return [key, new field.subType(value)]
-			})
-		)
 	}
 
 	fromJSON(jsonObj){
@@ -121,10 +77,10 @@ class BaseDTO{
 			let value = jsonObj[fieldName]
 
 			if(field.type === Array){
-				this[fieldName] = value ? this.castSubArray(value, field) : []
+				this[fieldName] = value ? castSubArray(value, field) : []
 			}
 			else if(field.type === Object){
-				this[fieldName] = value ? this.castSubObject(value, field) : {}
+				this[fieldName] = value ? castSubObject(value, field) : {}
 			}
 			else if(isDTO(field.type)){
 				this[fieldName] = new field.type(value)
@@ -165,12 +121,78 @@ class BaseDTO{
 	}
 }
 
+function getField(target, name){
+	if(name === '_fields'){
+		throw new Error(`Unable to set set value, "_fields" is a reserved property used by couch-js.`)
+	}
+	if(!target._fields.hasOwnProperty(name)){
+		throw new Error(`Unable to set value, object does not have field with name: ${name}`)
+	}
+	return target._fields[name]
+}
+
+function validateValue(field, value){
+	let fieldType = field.type
+	if(fieldType === Array && !Array.isArray(value)){
+		throw new Error(`Expected Array for field ${name} got ${typeof value}`)
+	}
+}
+
+function castValue(value, type, subType){
+	if(isDTO(type)){
+		return new type(value)
+	}
+	else if(isPrimitive(type)){
+		return type(value)
+	}
+	else if(isArray(type)){
+		return value.map(arrayValue => castValue(arrayValue, subType))
+	}
+	else if(isObject(type)){
+		return Object.fromEntries(
+			Object.entries(value).map(([objKey, objValue]) =>
+				[objKey, castValue(objValue, subType)]
+			))
+	}
+	else{
+		return value
+	}
+}
+
+function castSubArray(array, field){
+	return array.map((value, index) => {
+		if(value && typeof value === 'object'){
+			value['_id'] = value['_id'] || index.toString()
+		}
+		return new field.subType(value)
+	})
+}
+
+function castSubObject(object, field){
+	return Object.fromEntries(
+		Object.entries(object).map(([key, value]) => {
+			if(value && typeof value === 'object'){
+				value['_id'] = value['_id'] || key
+			}
+			return [key, new field.subType(value)]
+		})
+	)
+}
+
 function isDTO(cls){
 	return Boolean(cls && cls.prototype instanceof BaseDTO)
 }
 
 function isPrimitive(cls){
-	return Boolean(cls === Boolean || cls === Number || cls === String || cls === Object)
+	return Boolean(cls === Boolean || cls === Number || cls === String)
+}
+
+function isArray(cls){
+	return Boolean(cls === Array)
+}
+
+function isObject(cls){
+	return Boolean(cls === Object)
 }
 
 function copyObject(object){

@@ -111,10 +111,15 @@ class DatabaseAPI{
 			.then(json => dataObject._rev = json['rev'])
 	}
 
-	queryDocs(queryObject){
+	queryDocs(queryObject, sortBy, sortDirection, skip, limit){
 		let path = `${this.databaseName}/_find`
 		let headers = {'Content-Type': 'application/json'}
-		let body = JSON.stringify({selector: queryObject})
+		let body = JSON.stringify({
+			selector: queryObject,
+			sort: sortBy ? [{[sortBy]: sortDirection || 'asc'}] : [],
+			skip: skip || 0,
+			limit: limit || 25
+		})
 		return this.session.makeRequest(path, 'POST', headers, body)
 			.then(response => {
 				if(this.dtoClass){
@@ -124,6 +129,18 @@ class DatabaseAPI{
 					return response['docs']
 				}
 			})
+	}
+
+	createIndex(name, fields){
+		let path = `${this.databaseName}/_index`
+		let headers = {'Content-Type': 'application/json'}
+		let body = JSON.stringify({
+			name,
+			index: {
+				fields
+			}
+		})
+		return this.session.makeRequest(path, 'POST', headers, body)
 	}
 
 	readDesignDoc(designDocName){

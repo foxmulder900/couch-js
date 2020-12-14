@@ -139,4 +139,43 @@ describe('BaseDTO', () => {
 			}).toThrow(expected_error)
 		})
 	})
+
+	describe('getters and setters', () => {
+		it('should convert object to DTO class', () => {
+			let dto = new TestDTO()
+			dto.nested_dto = {'_id': 1, 'message': 'hello'}
+
+			expect(dto.nested_dto).toBeInstanceOf(TestNestedDTO)
+		})
+
+		it('should convert array objects to DTO subType', () => {
+			let dto = new TestDTO()
+			dto.nested_dto_array = [
+				new TestNestedDTO({'_id': 1, 'message': 'hello'}),
+				{'_id': 2, 'message': 'world'}
+			]
+
+			expect(dto.nested_dto_array[0]).toBeInstanceOf(TestNestedDTO)
+			expect(dto.nested_dto_array[0])._id = 1
+			expect(dto.nested_dto_array[0]).message = 'hello'
+			expect(dto.nested_dto_array[1]).toBeInstanceOf(TestNestedDTO)
+			expect(dto.nested_dto_array[1])._id = 2
+			expect(dto.nested_dto_array[1]).message = 'world'
+		})
+
+		it('should convert object values to DTO subType', () => {
+			let dto = new TestDTO()
+			dto.nested_dto_dictionary = {
+				'a': new TestNestedDTO({'_id': 1, 'message': 'hello'}),
+				'b': {'_id': 2, 'message': 'world'}
+			}
+
+			expect(dto.nested_dto_dictionary['a']).toBeInstanceOf(TestNestedDTO)
+			expect(dto.nested_dto_dictionary['a'])._id = 1
+			expect(dto.nested_dto_dictionary['a']).message = 'hello'
+			expect(dto.nested_dto_dictionary['b']).toBeInstanceOf(TestNestedDTO)
+			expect(dto.nested_dto_dictionary['b'])._id = 2
+			expect(dto.nested_dto_dictionary['b']).message = 'world'
+		})
+	})
 })
