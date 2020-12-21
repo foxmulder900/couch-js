@@ -36,6 +36,10 @@ class DesignDocDTO extends BaseDTO{
 		this.shows = this.shows || {}
 		this.shows[name] = showFunction.toString()
 	}
+
+	setValidateDocUpdateFunction(validateFunction){
+		this.validate_doc_update = validateFunction.toString()
+	}
 }
 
 module.exports = {
