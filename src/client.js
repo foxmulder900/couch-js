@@ -2,7 +2,6 @@ const DatabaseAPI = require('./database_api')
 const SessionAPI = require('./session_api')
 const {isDTO} = require('./base_dto')
 
-
 class Client{
 	constructor(couchConfig, apiConfig, authenticateUsingApi){
 		this._couchSession = couchConfig ? new SessionAPI(couchConfig) : null

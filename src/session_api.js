@@ -13,14 +13,12 @@ else{
 	HTTP_ONLY = true
 }
 
-
 function buildBaseUrl(config){
 	let host = config.host || 'localhost'
 	let port = config.port || 5984
 	let protocol = config.protocol || 'http'
 	return `${protocol}://${host}:${port}/`
 }
-
 
 class SessionAPI{
 	constructor(config){

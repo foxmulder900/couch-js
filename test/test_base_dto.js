@@ -181,7 +181,6 @@ describe('BaseDTO', () => {
 	})
 })
 
-
 describe('isDTO', () => {
 	class TestDTO extends BaseDTO{
 		static fields = ['test']
