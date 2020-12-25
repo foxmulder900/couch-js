@@ -2,39 +2,47 @@ const DatabaseAPI = require('./database_api')
 const SessionAPI = require('./session_api')
 const {isDTO} = require('./base_dto')
 
+
 class Client{
-	constructor(config){
-		this.config = config || {}
-		let host = this.config.host || 'localhost'
-		let port = this.config.port || 5984
-		let protocol = this.config.protocol || 'http'
-		this.baseUrl = `${protocol}://${host}:${port}/`
-		this._session = new SessionAPI(this.baseUrl, this.config)
+	constructor(couchConfig, apiConfig, authenticateUsingApi){
+		this._couchSession = couchConfig ? new SessionAPI(couchConfig) : null
+		this._apiLayerSession = apiConfig ? new SessionAPI(apiConfig) : null
+		if(!this._couchSession && !this._apiLayerSession){
+			console.log('CouchJS Client instantiated without parameters, assuming default host config.')
+			this._couchSession = new SessionAPI()
+		}
+		this._authSession = authenticateUsingApi ? this._apiLayerSession : this._couchSession
 		this._databases = {}
 	}
 
 	database(nameOrDTOClass, config){
 		let databaseName = isDTO(nameOrDTOClass) ? nameOrDTOClass.name : nameOrDTOClass
 		let cacheKey = databaseName + JSON.stringify(config)
-		let database = this._databases[cacheKey] || new DatabaseAPI(this._session, nameOrDTOClass, config)
+		let database = this._databases[cacheKey] || new DatabaseAPI(this._couchSession, nameOrDTOClass, config)
 		this._databases[cacheKey] = database
 		return database
 	}
 
 	listDatabases(){
-		return this._session.makeRequest('_all_dbs')
+		let session = this._couchSession || this._apiLayerSession
+		return session.makeRequest('_all_dbs')
 	}
 
 	login(username, password){
-		return this._session.authenticate(username, password)
+		return this._authSession.authenticate(username, password)
 	}
 
 	logout(){
-		return this._session.deauthenticate()
+		return this._authSession.deauthenticate()
 	}
 
 	getSessionInfo(){
-		return this._session.getSessionInfo()
+		return this._authSession.getSessionInfo()
+	}
+
+	api(endpointUrl, responseDTO){
+		return this._apiLayerSession.makeRequest(endpointUrl)
+			.then(json => responseDTO ? new responseDTO(json) : json)
 	}
 }
 

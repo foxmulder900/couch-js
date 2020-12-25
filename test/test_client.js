@@ -17,13 +17,13 @@ describe('Client', () => {
 		it('has sane defaults', () => {
 			let client = new Client({host: 'couchdb'})
 
-			expect(client.baseUrl).toBe('http://couchdb:5984/')
+			expect(client._authSession.baseUrl).toBe('http://couchdb:5984/')
 		})
 
 		it('builds base_url from input parameters', () => {
 			let client = new Client({host: 'www.example.com', port: 80, protocol: 'https'})
 
-			expect(client.baseUrl).toBe('https://www.example.com:80/')
+			expect(client._authSession.baseUrl).toBe('https://www.example.com:80/')
 		})
 	})
 

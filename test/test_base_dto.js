@@ -1,4 +1,5 @@
 const BaseDTO = require('../src/base_dto').BaseDTO
+const isDTO = require('../src/base_dto').isDTO
 
 describe('BaseDTO', () => {
 	class TestNestedDTO extends BaseDTO{
@@ -177,5 +178,32 @@ describe('BaseDTO', () => {
 			expect(dto.nested_dto_dictionary['b'])._id = 2
 			expect(dto.nested_dto_dictionary['b']).message = 'world'
 		})
+	})
+})
+
+
+describe('isDTO', () => {
+	class TestDTO extends BaseDTO{
+		static fields = ['test']
+	}
+
+	class TestDTO2 extends TestDTO{
+		static fields = ['test', 'test_2']
+	}
+
+	it('should detect a subclass as a DTO', () => {
+		expect(isDTO(TestDTO)).toBeTrue()
+	})
+
+	it('should detect an instance of a subclass as a DTO', () => {
+		let subclassInstance = new TestDTO()
+
+		expect(isDTO(subclassInstance)).toBeTrue()
+	})
+
+	it('should detect an instance of a multi-level subclass as a DTO', () => {
+		let subclassInstance = new TestDTO2()
+
+		expect(isDTO(subclassInstance)).toBeTrue()
 	})
 })
