@@ -180,7 +180,16 @@ function castSubObject(object, field){
 }
 
 function isDTO(cls){
-	return Boolean(cls && cls.prototype instanceof BaseDTO)
+	let subClass = cls ? Object.getPrototypeOf(cls) : null
+	while (subClass){
+		// NOTE: instanceof is inconsistent here due to the possibility of BaseDTO being imported multiple times
+		// See: https://stackoverflow.com/questions/41260938/es6-export-import-multiple-classes-instanceof-returns-false
+		if(subClass.name === BaseDTO.name || subClass instanceof BaseDTO){
+			return true
+		}
+		subClass = Object.getPrototypeOf(subClass)
+	}
+	return false
 }
 
 function isPrimitive(cls){

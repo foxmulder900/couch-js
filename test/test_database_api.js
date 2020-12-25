@@ -8,7 +8,7 @@ describe('DatabaseAPI', () => {
 		static fields = ['_id', '_rev', 'testField']
 	}
 
-	let session = new SessionAPI('http://couchdb:5984/')
+	let session = new SessionAPI({host: 'couchdb'})
 	session.authenticate('test_user', 'test_password')
 
 	describe('Database CRUD', () => {

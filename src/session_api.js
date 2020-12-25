@@ -13,17 +13,24 @@ else{
 	HTTP_ONLY = true
 }
 
+function buildBaseUrl(config){
+	let host = config.host || 'localhost'
+	let port = config.port || 5984
+	let protocol = config.protocol || 'http'
+	return `${protocol}://${host}:${port}/`
+}
+
 class SessionAPI{
-	constructor(baseUrl, config){
+	constructor(config){
 		/**
 		 * @param {string} baseUrl The CouchDB host URL without any path information.
 		 * @param {boolean} http_only If true, the class assumes there is a browser correctly handling cookie headers.
 		 * 		Otherwise cookies are managed by the class. Defaults to true, pass false for environments such as Node.
 		 */
 		this.config = config || {}
-		this.baseUrl = baseUrl
+		this.baseUrl = buildBaseUrl(this.config)
 		this._userInfo = {}
-		this.cookie = null
+		this.cookie = this.config.cookie
 	}
 
 	authenticate(name, password){
