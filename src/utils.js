@@ -1,3 +1,10 @@
+const DEBUG_MODE = true
+
+function debug(message){
+	if(DEBUG_MODE){
+		console.debug(message)
+	}
+}
 
 function getUserDatabaseName(userName){
 	// TODO Make userdb prefix configurable
@@ -32,6 +39,7 @@ function updateRevision(json, dto){
 }
 
 module.exports = {
+	debug,
 	getUserDatabaseName,
 	checkOk,
 	updateRevision
