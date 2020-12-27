@@ -75,7 +75,7 @@ class DatabaseAPI{
 		let headers = {'Content-Type': 'application/json'}
 		let body = JSON.stringify(this.dtoClass ? dataObject.toJSON() : dataObject)
 		return this.session.makeRequest(this.databaseName, 'POST', headers, body)
-			.then(utils.checkOk)
+			.then(utils.checkOk) // TODO handle this with Error Codes, not checking JSON response
 			.then(json => utils.updateRevision(json, dataObject))
 	}
 
@@ -97,9 +97,10 @@ class DatabaseAPI{
 	}
 
 	docExists(documentId){
+		// Returns the document revision if the document exists, otherwise returns null
 		let path = `${this.databaseName}/${documentId}`
 		return this.session.makeRequest(path, 'HEAD', {}, undefined, true)
-			.then((response) => response.status === 200)
+			.then(response => JSON.parse(response.headers.get('etag')))
 	}
 
 	updateDoc(dataObject){

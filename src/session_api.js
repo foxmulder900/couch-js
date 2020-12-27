@@ -61,13 +61,14 @@ class SessionAPI{
 	makeRequest(path = '', method = 'GET', headers = {}, body = undefined, raw = false){
 		let url = this.baseUrl + path
 		let defaultHeaders = HTTP_ONLY ? {} : {'Cookie': this.cookie}
-		console.debug(`${method} : ${url}`)
+		utils.debug(`${method} : ${url}`)
 		return fetch(url, {
 			method,
 			credentials: 'include',
 			headers: Object.assign(defaultHeaders, headers),
 			body: body instanceof Object ? JSON.stringify(body) : body
 		}).then(response => {
+			utils.debug(`${response.status} ${response.statusText}`)
 			let statusCallback = this.config[`on${response.status}`]
 			return statusCallback ? statusCallback(response) : response
 		}).then(response => raw ? response : response.json())

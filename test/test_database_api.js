@@ -157,7 +157,7 @@ describe('DatabaseAPI', () => {
 			function assertExists(exists, documentId, done){
 				database.docExists(documentId)
 					.then((response) => {
-						expect(response).toBe(exists)
+						exists ? expect(response).toBeTruthy() : expect(response).toBeFalsy()
 						done()
 					})
 			}
