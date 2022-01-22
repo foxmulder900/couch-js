@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/foxmulder900/couch-js#readme",
   "dependencies": {
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^3.1.1"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
